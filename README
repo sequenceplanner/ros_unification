@@ -1,12 +1,1 @@
-Hello FCC team,
-
-as you will see, the package is far from complete, a lot of drivers are still missing. In the description folder, there are the modified .xml's from the universal_robot and ur_modern_driver packages, I just have them copied in the appropriate destinstions so I don't have to change the original things. 
-
-In the src/scripts_for_testing folder, there is a really basic script (ur_sim_pose_unidriver) that uses the moveit's planning_interface to add/remove objects from the scene, but for the move_group interface, I haven't defined a specific motion planner. Also, almost all the movements are hardcoded, moveit is used just to send the robot to the Home position in the begining. Not much attention to detail has been given to this simulation.
-
-If you sre using kafka, there is a kafka/ros bridge that can be used. 
-
-I will not be in Sweden for the next 10 days, so I won't be able to answer on e-mails. 
-
-Best regards,
-Endre
+The unification demo code for ROS
