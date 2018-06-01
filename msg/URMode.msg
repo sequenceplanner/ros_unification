@@ -1,0 +1,2 @@
+string modeCmd
+string mode
