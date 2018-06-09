@@ -1,0 +1,13 @@
+bool got_cmd_ur_activate_safeguard
+bool got_cmd_ur_disengage_safeguard
+bool got_cmd_ur_disengage_protective
+
+bool normal
+bool reduced
+bool protective_stop
+bool recovery
+bool safeguard_stop
+bool system_emergency_stop
+bool robot_emergency_stop
+bool violation
+bool fault

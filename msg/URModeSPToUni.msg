@@ -1,0 +1,3 @@
+bool ur_activate_safeguard
+bool ur_disengage_safeguard
+bool ur_disengage_protective
