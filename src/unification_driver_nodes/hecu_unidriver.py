@@ -5,7 +5,7 @@
 #----------------------------------------------------------------------------------------
     # Endre Eres
     # HECU Unification Driver based on Setek HECU ROS Driver specification
-    # V.0.4.0.
+    # V.0.7.0.
 #----------------------------------------------------------------------------------------
 
 import json
@@ -13,9 +13,8 @@ import rospy
 import roslib
 import socket
 import struct
-import threading
-from std_msgs.msg import String
 from std_msgs.msg import UInt16
+from unification_roscontrol.msg import HecuUniToSP
 import time
 
 
@@ -25,18 +24,16 @@ class hecu_unidriver():
         
         rospy.init_node('hecu_unidriver', anonymous=False)
 
-        self.HCA_state = '_'    # HECU alive or not
-        self.LFT_state = '_'    # LF Tool home or not
-        self.OFT_state = '_'    # Filter Tool home or not
+        self.hecu_to_hecu_unidriver_timeout = 100
+
+        # state
+        self.hecu_unidriver_got_msg_from_hecu = False
+        self.hecu_alive = False
+        self.lf_tool_home = False
+        self.filter_tool_home = False
         
-        rospy.Subscriber("/HECU_status", UInt16, self.hecuCallback)
-
-        self.hecu_hca_state_publisher = rospy.Publisher('hecu_hca_unistate', String, queue_size=10)
-        self.hecu_lft_state_publisher = rospy.Publisher('hecu_lft_unistate', String, queue_size=10)
-        self.hecu_oft_state_publisher = rospy.Publisher('hecu_oft_unistate', String, queue_size=10)
-
-        # testing
-        self.testpub = rospy.Publisher('/HECU_status', UInt16, queue_size=10)
+        # publisgers
+        self.hecu_to_sp_publisher = rospy.Publisher('/unification_roscontrol/hecu_unidriver_to_sp', HecuUniToSP, queue_size=10)
         
         rospy.sleep(1)
 
@@ -49,14 +46,28 @@ class hecu_unidriver():
     # Main method
     #----------------------------------------------------------------------------------------
     def main(self):
+
+        self.hecu_state = HecuUniToSP()
+
         while not rospy.is_shutdown():
-            self.hecu_hca_state_publisher.publish(self.HCA_state)
-            self.hecu_lft_state_publisher.publish(self.LFT_state)
-            self.hecu_oft_state_publisher.publish(self.OFT_state)
+            try:
+                rospy.Subscriber("/HECU_status", UInt16, self.hecuCallback)
+            
+                if time.time() < self.hecu_to_hecu_unidriver_timeout:
+                    HecuUniToSP.hecu_unidriver_got_msg_from_hecu = self.hecu_unidriver_got_msg_from_hecu
+                    HecuUniToSP.hecu_alive = self.hecu_alive
+                    HecuUniToSP.lf_tool_home = self.lf_tool_home
+                    HecuUniToSP.filter_tool_home = self.filter_tool_home
+                else:
+                    HecuUniToSP.hecu_unidriver_got_msg_from_hecu = False
+                    HecuUniToSP.hecu_alive = False
+                    HecuUniToSP.lf_tool_home = False
+                    HecuUniToSP.filter_tool_home = False
 
-            # testing
-            self.testpub.publish(int('0' + '0' + '0' + '0000000000000', 2))
+            except rospy.ROSInterruptException:
+                pass
 
+            self.hecu_to_sp_publisher.publish(self.hecu_state)
             self.main_rate.sleep()
 
         rospy.spin()
@@ -67,6 +78,8 @@ class hecu_unidriver():
     #----------------------------------------------------------------------------------------------------------------
     def hecuCallback(self, hecu):
         self.hecu_bin = format(hecu.data, '016b')
+        self.hecu_to_hecu_unidriver_timeout = time.time() + 2
+        self.hecu_unidriver_got_msg_from_hecu = True
 
         self.HCA_int_state = int(self.hecu_bin[0:1], 2)
         self.LFT_int_state = int(self.hecu_bin[1:2], 2)
@@ -74,23 +87,19 @@ class hecu_unidriver():
         self.HECU_int_other = int(self.hecu_bin[3:16], 2)
 
         if self.HCA_int_state == 1:
-            self.HCA_state = "hecu_is_alive"
+            self.hecu_alive = True
         else:
-            self.HCA_state = "hecu_is_not_alive"
-
+            self.hecu_alive = False
+        
         if self.LFT_int_state == 1:
-            self.LFT_state = "lf_tool_home"
+            self.lf_tool_home = True
         else:
-            self.LFT_state = "lf_tool_not_home"
+            self.lf_tool_home = False            
 
         if self.OFT_int_state == 1:
-            self.OFT_state = "filter_tool_home"
+            self.filter_tool_home = True
         else:
-            self.OFT_state = "filter_tool_not_home"
-
-        # testing
-        print self.HCA_state + ' and ' + self.LFT_state + ' and ' + self.OFT_state
-        
+            self.filter_tool_home = False
 
 if __name__ == '__main__':
     try:

@@ -244,6 +244,7 @@ class ur_pose_unidriver():
         #self.ur_pose_state_shouldPlan = False
         self.ur_pose_state_refPos = "_"
         self.ur_pose_state_actPos = "_"
+        self.ur_pose_refPos_prev_cmd = "_"
         self.ur_pose_state_executing = False
         #self.ur_pose_state_planning = False
 
@@ -257,8 +258,8 @@ class ur_pose_unidriver():
         
         #self.p = PlanningSceneInterface("base")
         #self.m = PlanningSceneInterface("base_footprint")
-        #self.scene = PlanningSceneInterface2()
-        #self.g = MoveGroupInterface("manipulator", "base")
+        self.scene = PlanningSceneInterface2()
+        self.g = MoveGroupInterface("manipulator", "base")
 
         self.URPosePublisher = rospy.Publisher("/unification/ur_pose_unidriver/state", URPose1, queue_size=10)
 
@@ -267,7 +268,7 @@ class ur_pose_unidriver():
         self.tcp_names = ['x', 'y', 'z', 'rx', 'ry', 'rz']
 
         #self.ur_pose_state = '_'
-        self.isclose_tolerance = 0.005
+        self.isclose_tolerance = 0.1
 
         rospy.Subscriber("/joint_states", JointState, self.jointCallback)
         rospy.Subscriber("/unification/ur_pose_unidriver/cmd", URPose2, self.ur_pose_unistate_callback)
@@ -292,12 +293,36 @@ class ur_pose_unidriver():
         self.DummyJoint2 = [-2.034539524708883, -1.3379505316363733, -1.8133795897113245, -1.5946019331561487, 1.582043170928955, -0.4647153059588831]
         self.DummyJoint3 = [-1.859448258076803, -1.1679099241839808, 0.7398859858512878, -1.5353425184832972, 1.5146180391311646, -0.6263755003558558]
         self.DummyJoint4 = [-2.388958994542257, -1.5455425421344202, 1.5693951845169067, -1.9648574034320276, 1.715777039527893, -0.1352313200580042]
+                            
 
         rospy.sleep(1)
 
         self.main_rate = rospy.Rate(10)
         
         self.main()
+
+    # -------------------------------------------------------------------------------
+    # transformations
+    # -------------------------------------------------------------------------------
+        # From Euler to Quaternion
+        #quaternion = tf.transformations.quaternion_from_euler(roll, pitch, yaw)
+        ##type(pose) = geometry_msgs.msg.Pose
+        #pose.orientation.x = quaternion[0]
+        #pose.orientation.y = quaternion[1]
+        #pose.orientation.z = quaternion[2]
+        #pose.orientation.w = quaternion[3]
+
+        # From Quaternion to Euler
+        ##type(pose) = geometry_msgs.msg.Pose
+        #quaternion = (
+        #    pose.orientation.x,
+        #    pose.orientation.y,
+        #    pose.orientation.z,
+        #    pose.orientation.w)
+        #euler = tf.transformations.euler_from_quaternion(quaternion)
+        #roll = euler[0]
+        #pitch = euler[1]
+        #yaw = euler[2]
 
 
     #------------------------------------------------------------------------------------------------------------
@@ -402,25 +427,35 @@ class ur_pose_unidriver():
 
     def addLFMesh(self):
         pos = PoseStamped()
+        qpos = Pose()
+
+        quaternion = tf.transformations.quaternion_from_euler(0, 0, -1.5707)
+        #type(pose) = geometry_msgs.msg.Pose
+        qpos.orientation.x = quaternion[0]
+        qpos.orientation.y = quaternion[1]
+        qpos.orientation.z = quaternion[2]
+        qpos.orientation.w = quaternion[3]
     
+        # mir <origin xyz="-0.5 0.2 0.5" rpy="0.0 0.0 0.0" />
+        # lf to mir <origin xyz="-5.65 3.33 -0.572" rpy="0 0 -1.5707" />
         pos.header.frame_id = "world"
-        pos.pose.position.x = -3.42 
-        pos.pose.position.y = -5.65
-        pos.pose.position.z = 0 #-0.672
-        pos.pose.orientation.x = 0
-        pos.pose.orientation.y = 0
-        pos.pose.orientation.z = 0
-        pos.pose.orientation.w = 1
+        pos.pose.position.x = -6.15 
+        pos.pose.position.y = 3.53
+        pos.pose.position.z = -0.1
+        pos.pose.orientation.x = qpos.orientation.x
+        pos.pose.orientation.y = qpos.orientation.y
+        pos.pose.orientation.z = qpos.orientation.z
+        pos.pose.orientation.w = qpos.orientation.w
 
         self.scene.add_mesh("LF", pos, "/home/endre_dell/catkin_ws_crslab/src/unification_roscontrol/meshes/LF.stl", size = (0.01, 0.01, 0.01))
 
-    def addEngineMesh(self):
+    def addAGVMesh(self):
         pos = PoseStamped()
     
-        pos.header.frame_id = "world"
-        pos.pose.position.x = 0 
-        pos.pose.position.y = 0
-        pos.pose.position.z = 0 #-0.672
+        pos.header.frame_id = "world" #-2.7 -5.874 -0.1
+        pos.pose.position.x = -2.7
+        pos.pose.position.y = -5.874
+        pos.pose.position.z = -0.1
         pos.pose.orientation.x = 0
         pos.pose.orientation.y = 0
         pos.pose.orientation.z = 0
@@ -428,9 +463,119 @@ class ur_pose_unidriver():
 
         self.scene.add_mesh("AGV", pos, "/home/endre_dell/catkin_ws_crslab/src/unification_roscontrol/meshes/AGV.stl", size = (0.01, 0.01, 0.01))
 
-    def attachLFToMir(self):
-        self.scene.attach_mesh("base_footprint", "LF", touch_links = ['base_footprint'])
+    def attachLF(self):
+        self.scene.attach_mesh("tool0", "LF")
         rospy.sleep(3)
+
+    def addEngine(self):
+        pos = PoseStamped()
+        
+    
+        pos.header.frame_id = "world"
+        pos.pose.position.x = 0.72
+        pos.pose.position.y = -0.222
+        pos.pose.position.z = 0.7 #-0.672
+        pos.pose.orientation.x = 0
+        pos.pose.orientation.y = 0
+        pos.pose.orientation.z = 0
+        pos.pose.orientation.w = 1
+        self.scene.add_box("engine", pos, size = (1.3, 0.5, 0.8))
+        rospy.sleep(1)
+
+    def addReducedEngine(self):
+        pos = PoseStamped()
+        qpos = Pose()
+
+        quaternion = tf.transformations.quaternion_from_euler(-1.5707, 0, 1.5707)
+        #type(pose) = geometry_msgs.msg.Pose
+        qpos.orientation.x = quaternion[0]
+        qpos.orientation.y = quaternion[1]
+        qpos.orientation.z = quaternion[2]
+        qpos.orientation.w = quaternion[3]
+    
+        # agv to world <origin xyz="-2.7 -5.874 -0.1" 
+        # engine to agv <origin xyz="3.42 5.65 0.8"
+        pos.header.frame_id = "world"
+        pos.pose.position.x = 3.42 - 2.7 + 0.68
+        pos.pose.position.y = 5.65 - 5.874
+        pos.pose.position.z = 0.8 + 0.05 # - 0.1
+        pos.pose.orientation.x = qpos.orientation.x
+        pos.pose.orientation.y = qpos.orientation.y
+        pos.pose.orientation.z = qpos.orientation.z
+        pos.pose.orientation.w = qpos.orientation.w
+        self.scene.add_mesh("redengine", pos, "/home/endre_dell/catkin_ws_crslab/src/unification_roscontrol/meshes/EngineReduced.stl", size = (0.01, 0.01, 0.01))
+        rospy.sleep(1)
+
+    def addCylinder1ToEngine(self):
+        pos = PoseStamped()
+    
+        pos.header.frame_id = "world"
+        pos.pose.position.x = 0.41
+        pos.pose.position.y = -0.572
+        pos.pose.position.z = 1.02 #-0.672
+        pos.pose.orientation.x = 0
+        pos.pose.orientation.y = 0
+        pos.pose.orientation.z = 0
+        pos.pose.orientation.w = 1
+        self.scene.add_mesh("OF1", pos, "/home/endre_dell/catkin_ws_crslab/src/unification_roscontrol/meshes/Cylinder.stl", size = (0.008, 0.008, 0.013))
+        rospy.sleep(1)
+
+    def addCylinder1ToMiR(self):
+        pos = PoseStamped()
+    
+        pos.header.frame_id = "world"
+        pos.pose.position.x = - 0.7
+        pos.pose.position.y = -0.122
+        pos.pose.position.z = 0.98 #-0.672
+        pos.pose.orientation.x = 0
+        pos.pose.orientation.y = 0
+        pos.pose.orientation.z = 0
+        pos.pose.orientation.w = 1
+        self.scene.add_mesh("OF1", pos, "/home/endre_dell/catkin_ws_crslab/src/unification_roscontrol/meshes/Cylinder.stl", size = (0.006, 0.006, 0.0095))
+        rospy.sleep(1)
+
+    def addCylinder2ToMiR(self):
+        pos = PoseStamped()
+    
+        pos.header.frame_id = "world"
+        pos.pose.position.x = - 0.7
+        pos.pose.position.y = -0.122 + 0.2
+        pos.pose.position.z = 0.98 #-0.672
+        pos.pose.orientation.x = 0
+        pos.pose.orientation.y = 0
+        pos.pose.orientation.z = 0
+        pos.pose.orientation.w = 1
+        self.scene.add_mesh("OF2", pos, "/home/endre_dell/catkin_ws_crslab/src/unification_roscontrol/meshes/Cylinder.stl", size = (0.006, 0.006, 0.0095))
+        rospy.sleep(1)
+
+    def addCylinder3ToMiR(self):
+        pos = PoseStamped()
+    
+        pos.header.frame_id = "world"
+        pos.pose.position.x = - 0.7
+        pos.pose.position.y = -0.122 + 0.2 + 0.2
+        pos.pose.position.z = 0.98 #-0.672
+        pos.pose.orientation.x = 0
+        pos.pose.orientation.y = 0
+        pos.pose.orientation.z = 0
+        pos.pose.orientation.w = 1
+        self.scene.add_mesh("OF3", pos, "/home/endre_dell/catkin_ws_crslab/src/unification_roscontrol/meshes/Cylinder.stl", size = (0.006, 0.006, 0.0095))
+        rospy.sleep(1)
+
+    def addFrame(self):
+        pos = PoseStamped()
+    
+        pos.header.frame_id = "world" # 2.95 5.74 2.12
+        pos.pose.position.x = -3
+        pos.pose.position.y = -5.8
+        pos.pose.position.z = -0.15
+        pos.pose.orientation.x = 0
+        pos.pose.orientation.y = 0
+        pos.pose.orientation.z = 0
+        pos.pose.orientation.w = 1
+        self.scene.add_mesh("Frame", pos, "/home/endre_dell/catkin_ws_crslab/src/unification_roscontrol/meshes/Frame.stl", size = (0.01, 0.01, 0.01))
+        rospy.sleep(1)
+
 
     #------------------------------------------------------------------------------------------------------------
     # Sample move methods
@@ -441,19 +586,19 @@ class ur_pose_unidriver():
 
     def URToDummyPose1(self):
         self.moveJ(self.DummyJoint1, a=1.5, v=5, t=3, r=0)
-        rospy.sleep(3.5)
+        #rospy.sleep(3.5)
     
     def URToDummyPose2(self):
         self.moveJ(self.DummyJoint2, a=1.5, v=5, t=3, r=0)
-        rospy.sleep(3.5)
+        #rospy.sleep(3.5)
 
     def URToDummyPose3(self):
         self.moveJ(self.DummyJoint3, a=1.5, v=5, t=3, r=0)
-        rospy.sleep(3.5)
+        #rospy.sleep(3.5)
 
     def URToDummyPose4(self):
-        self.moveJ(self.DummyJoint4, a=1.5, v=5, t=3, r=0)
-        rospy.sleep(3.5)
+        self.moveP(self.DummyJoint4)
+        #rospy.sleep(3.5)
 
 
     def URToAtOF1L(self):
@@ -488,6 +633,32 @@ class ur_pose_unidriver():
     # Main method
     #----------------------------------------------------------------------------------------
     def main(self):
+        
+        self.scene.remove_world_object()
+        self.scene.remove_attached_object("tool0")
+        rospy.sleep(2)
+        self.addLFMesh()
+        rospy.sleep(2)
+        #self.attachLF()
+        #rospy.sleep(2)
+        #self.addEngine()
+        #rospy.sleep(2)
+        self.addAGVMesh()
+        #rospy.sleep(2)
+        #self.addCylinders()
+        rospy.sleep(2)
+        self.addCylinder1ToMiR()
+        self.addCylinder2ToMiR()
+        self.addCylinder3ToMiR()
+        rospy.sleep(2)
+        self.addFrame()
+        rospy.sleep(2)
+        self.addLFMesh()
+        rospy.sleep(2)
+        self.addReducedEngine()
+        
+
+
         self.ur_pose_state = URPose1()
         while not rospy.is_shutdown():
             
@@ -527,21 +698,29 @@ class ur_pose_unidriver():
     #----------------------------------------------------------------------------------------
     def ur_pose_unistate_callback(self, data):
         print "asdfasdf"
-        if data:
-            print "data "
-        else:
-            print "asfd"
-        #self.shouldPlan = data.shouldPlan
+        
         self.ur_pose_refPos_cmd = data.refPos
         
-        if self.ur_pose_refPos_cmd == "URDummyPose1":
+        if self.ur_pose_refPos_cmd == "URDummyPose1" and self.ur_pose_state_actPos != "URDummyPose1" and self.ur_pose_refPos_cmd != self.ur_pose_refPos_prev_cmd:
+            self.ur_pose_refPos_prev_cmd = self.ur_pose_refPos_cmd
+            self.ur_pose_state_refPos = self.ur_pose_refPos_cmd
             self.URToDummyPose1()
-        elif self.ur_pose_refPos_cmd == "URDummyPose2":
+            print "urposecmd1"
+        elif self.ur_pose_refPos_cmd == "URDummyPose2" and self.ur_pose_state_actPos != "URDummyPose2" and self.ur_pose_refPos_cmd != self.ur_pose_refPos_prev_cmd:
+            self.ur_pose_refPos_prev_cmd = self.ur_pose_refPos_cmd
+            self.ur_pose_state_refPos = self.ur_pose_refPos_cmd
             self.URToDummyPose2()
-        elif self.ur_pose_refPos_cmd == "URDummyPose3":
+            print "urposecmd2"
+        elif self.ur_pose_refPos_cmd == "URDummyPose3" and self.ur_pose_state_actPos != "URDummyPose3" and self.ur_pose_refPos_cmd != self.ur_pose_refPos_prev_cmd:
+            self.ur_pose_refPos_prev_cmd = self.ur_pose_refPos_cmd
+            self.ur_pose_state_refPos = self.ur_pose_refPos_cmd
             self.URToDummyPose3()
-        elif self.ur_pose_refPos_cmd == "URDummyPose4":
+            print "urposecmd3"
+        elif self.ur_pose_refPos_cmd == "URDummyPose4" and self.ur_pose_state_actPos != "URDummyPose4" and self.ur_pose_refPos_cmd != self.ur_pose_refPos_prev_cmd:
+            self.ur_pose_refPos_prev_cmd = self.ur_pose_refPos_cmd
+            self.ur_pose_state_refPos = self.ur_pose_refPos_cmd
             self.URToDummyPose4()
+            print "urposecmd4"
         else:
             pass
         
@@ -584,8 +763,8 @@ class ur_pose_unidriver():
             numpy.isclose(joint.position[5], self.DummyJoint4[5], self.isclose_tolerance):
             self.ur_pose_state_actPos = 'URDummyPose4'
         
-        #else:
-        #    self.ur_pose_state = 'UR10StateERROR'
+        else:
+            self.ur_pose_state_actPos ="Unknown"
 
 
         if (joint.velocity[0] or joint.velocity[1] or joint.velocity[2] or joint.velocity[3] or joint.velocity[4] or joint.velocity[5] != 0):

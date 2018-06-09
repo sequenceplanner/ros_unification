@@ -457,7 +457,7 @@ class ur_pose_unidriver():
     # Main method
     #----------------------------------------------------------------------------------------
     def main(self):
-        self.p.clear()
+        #self.p.clear()
         rospy.sleep(1)
 
         rospy.sleep(3)

@@ -54,6 +54,20 @@ add_message_files(
   URPose1.msg
   URPose2.msg
   URMode.msg
+  AecuSPToUni.msg
+  AecuUniToSP.msg
+  AGVAlvarUniToSP.msg
+  HecuUniToSP.msg
+  MiRModeSPToUni.msg
+  MiRModeUniToSP.msg
+  MiRPoseSPToUni.msg
+  MiRPoseUniToSP.msg
+  RecuSPToUni.msg
+  RecuUniToSP.msg
+  URModeSPToUni.msg
+  URModeUniToSP.msg
+  URPoseSPToUni.msg
+  URPoseUniToSP.msg
 )
 
 ## Generate services in the 'srv' folder
