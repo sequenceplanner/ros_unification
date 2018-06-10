@@ -1,5 +1,9 @@
-bool got_cmf_should_plan
+bool ur_pose_unidriver_got_msg_from_sp
+bool got_cmd_should_plan
 string got_cmd_refPos
+
+bool ur_pose_unidriver_got_msg_from_ur_driver
+bool ur_pose_unidriver_got_msg_from_ur_pose_smaster
 string actPos
 bool executing
 bool planning

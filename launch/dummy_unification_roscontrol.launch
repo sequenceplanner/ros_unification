@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <node name="unidriver_bridge" pkg="unification_roscontrol" type="unidriver_bridge.py"> 
+  </node>
+  <node name="ur_safetymode_publisher" pkg="unification_roscontrol" type="ur_safetymode_publisher.py"> 
+  </node>
+  <node name="ur_tcp_pose_publisher" pkg="unification_roscontrol" type="ur_tcp_pose_publisher.py"> 
+  </node>
+  <node name="ur_mode_unidriver" pkg="unification_roscontrol" type="ur_mode_unidriver.py"> 
+  </node>
+  <node name="ur_pose_unidriver" pkg="unification_roscontrol" type="ur_pose_unidriver.py"> 
+  </node>
+  <node name="uni_state_collector" pkg="unification_roscontrol" type="uni_state_collector.py"> 
+  </node>
+
+</launch>

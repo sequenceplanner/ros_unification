@@ -1,3 +1,6 @@
+bool mir_pose_unidriver_got_msg_from_sp
 string gotRefPos
+
+bool mir_pose_unidriver_got_msg_from_mir_pose_smaster
 string actPos
 bool executing

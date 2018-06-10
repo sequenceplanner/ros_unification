@@ -14,7 +14,7 @@ import roslib
 import socket
 import struct
 import threading
-from std_msgs.msg import String
+from unification_roscontrol.msg import AGVAlvarUniToSP
 from geometry_msgs.msg import Point
 import threading
 import time
@@ -25,16 +25,16 @@ class agv_alvar_unidriver():
         
         rospy.init_node('agv_alvar_unidriver', anonymous=False)
 
-        self.A = -0.05  # Test value
-        self.B = 0.05   # Test value
-        self.C = -0.05  # Test value
-        self.D = 0.05   # Test value
+        self.A = -0.05  # Test value, change later
+        self.B = 0.05   # Test value, change later
+        self.C = -0.05  # Test value, change later
+        self.D = 0.05   # Test value, change later
 
         self.agv_alvar_state = '_'    # AGV at position or not
         
-        rospy.Subscriber("/agv_alvar_pose", Point, self.agvAlvarCallback)
+        rospy.Subscriber("/agv_alvar_smaster", Point, self.agvAlvarCallback)
 
-        self.agv_alvar_state_publisher = rospy.Publisher("agv_alvar_unistate", String, queue_size=10)
+        self.agv_alvar_state_publisher = rospy.Publisher("unification_roscontrol/agv_alvar_unistate", AGVAlvarUniToSP, queue_size=10)
         
         rospy.sleep(1)
 

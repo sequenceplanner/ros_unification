@@ -32,7 +32,7 @@ class hecu_unidriver():
         self.lf_tool_home = False
         self.filter_tool_home = False
         
-        # publisgers
+        # publishers
         self.hecu_to_sp_publisher = rospy.Publisher('/unification_roscontrol/hecu_unidriver_to_sp', HecuUniToSP, queue_size=10)
         
         rospy.sleep(1)

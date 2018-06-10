@@ -1,3 +1,4 @@
+bool agv_alvar_unidriver_got_msg_from_agv_alvar_smaster
 bool in_position
 float64 x
 float64 y

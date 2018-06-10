@@ -50,10 +50,6 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
-  URPose.msg
-  URPose1.msg
-  URPose2.msg
-  URMode.msg
   AecuSPToUni.msg
   AecuUniToSP.msg
   AGVAlvarUniToSP.msg

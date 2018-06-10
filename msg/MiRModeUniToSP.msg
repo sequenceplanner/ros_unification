@@ -1,8 +1,10 @@
+bool mir_mode_unidriver_got_msg_from_sp
 bool got_cmd_set_state_to_ready
 bool got_cmd_set_state_to_paused
 bool got_cmd_set_state_to_executing
 bool got_cmd_set_state_to_aborted
 
+bool mir_mode_unidriver_got_msg_from_mir_mode_smaster
 bool none
 bool starting
 bool shutting_down
