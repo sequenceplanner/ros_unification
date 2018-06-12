@@ -3,6 +3,10 @@ bool got_cmd_set_tool_idle
 bool got_cmd_run_tool_forward
 bool got_cmd_run_tool_in_reverse
 bool got_cmd_inhibit_all_run_also_manual
+bool got_cmd_activate_unload
+bool got_cmd_disactivate_unload
+bool got_cmd_activate_lift
+bool got_cmd_disactivate_lift
 
 bool aecu_unidriver_got_msg_from_aecu
 bool tool_is_idle

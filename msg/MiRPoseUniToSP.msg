@@ -1,6 +1,5 @@
 bool mir_pose_unidriver_got_msg_from_sp
-string gotRefPos
+string got_cmd_ref_pos
 
 bool mir_pose_unidriver_got_msg_from_mir_pose_smaster
-string actPos
-bool executing
+string act_pos

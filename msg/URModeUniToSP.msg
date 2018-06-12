@@ -1,9 +1,9 @@
-bool ur_pose_unidriver_got_msg_from_ur_pose_smaster
+bool ur_mode_unidriver_got_msg_from_sp
 bool got_cmd_ur_activate_safeguard
 bool got_cmd_ur_disengage_safeguard
 bool got_cmd_ur_disengage_protective
 
-bool ur_pose_unidriver_got_msg_from_sp
+bool ur_mode_unidriver_got_msg_from_ur_mode_smaster
 bool normal
 bool reduced
 bool protective_stop

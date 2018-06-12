@@ -1,2 +1,2 @@
 bool should_plan
-string refPos
+string ref_pos

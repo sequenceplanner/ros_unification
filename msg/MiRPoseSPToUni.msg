@@ -1,1 +1,1 @@
-string refPos
+string ref_pos
