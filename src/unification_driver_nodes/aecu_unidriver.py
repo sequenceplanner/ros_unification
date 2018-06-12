@@ -54,6 +54,10 @@ class aecu_unidriver():
         self.run_tool_forward = False
         self.run_tool_in_reverse = False
         self.inhibit_all_run_also_manual = False
+        self.activate_unload = False
+        self.disactivate_unload = False
+        self.activate_lift = False
+        self.disactivate_lift = False
 
         # publishers
         self.aecu_control_publisher = rospy.Publisher('/CT_AECU_con', UInt16, queue_size=10)
@@ -66,9 +70,7 @@ class aecu_unidriver():
         self.main()
 
 
-    #----------------------------------------------------------------------------------------
-    # Main method
-    #----------------------------------------------------------------------------------------
+
     def main(self):
 
         self.aecu_state = AecuUniToSP()
@@ -83,12 +85,20 @@ class aecu_unidriver():
                     AecuUniToSP.got_cmd_run_tool_forward = self.run_tool_forward
                     AecuUniToSP.got_cmd_run_tool_in_reverse = self.run_tool_in_reverse
                     AecuUniToSP.got_cmd_inhibit_all_run_also_manual = self.inhibit_all_run_also_manual
+                    AecuUniToSP.got_cmd_activate_unload = self.activate_unload
+                    AecuUniToSP.got_cmd_disactivate_unload = self.disactivate_unload
+                    AecuUniToSP.got_cmd_activate_lift = self.activate_lift
+                    AecuUniToSP.got_cmd_disactivate_lift = self.disactivate_lift
                 else:
                     AecuUniToSP.aecu_unidriver_got_msg_from_sp = False
                     AecuUniToSP.got_cmd_set_tool_idle = False
                     AecuUniToSP.got_cmd_run_tool_forward = False
                     AecuUniToSP.got_cmd_run_tool_in_reverse = False
                     AecuUniToSP.got_cmd_inhibit_all_run_also_manual = False
+                    AecuUniToSP.got_cmd_activate_unload = False
+                    AecuUniToSP.got_cmd_disactivate_unload = False
+                    AecuUniToSP.got_cmd_activate_lift = False
+                    AecuUniToSP.got_cmd_disactivate_lift = False
 
             except rospy.ROSInterruptException:
                 pass
@@ -137,67 +147,132 @@ class aecu_unidriver():
 
         rospy.spin()
 
-    
-    #----------------------------------------------------------------------------------------
-    # bridge to driver methods
-    #----------------------------------------------------------------------------------------
+
+
     def aecu_set_tool_idle(self):
-        self.aecu_control_publisher.publish(int('00' + '001' + '00000000000', 2))
+        self.aecu_control_publisher.publish(int('00' + '001' + '00' + '00' + '0000000', 2))
 
     def aecu_run_tool_forward(self):
-        self.aecu_control_publisher.publish(int('00' + '010' + '00000000000', 2))
+        self.aecu_control_publisher.publish(int('00' + '010' + '00' + '00' + '0000000', 2))
 
     def aecu_run_tool_in_reverse(self):
-        self.aecu_control_publisher.publish(int('00' + '011' + '00000000000', 2))
+        self.aecu_control_publisher.publish(int('00' + '011' + '00' + '00' + '0000000', 2))
 
     def aecu_inhibit_all_run_also_manual(self):
-        self.aecu_control_publisher.publish(int('00' + '100' + '00000000000', 2))
+        self.aecu_control_publisher.publish(int('00' + '100' + '00' + '00' + '0000000', 2))
+
+    def aecu_activate_unload(self):
+        self.aecu_control_publisher.publish(int('00' + '000' + '01' + '00' + '0000000', 2))
+
+    def aecu_disactivate_unload(self):
+        self.aecu_control_publisher.publish(int('00' + '000' + '10' + '00' + '0000000', 2))
+
+    def aecu_activate_lift(self):
+        self.aecu_control_publisher.publish(int('00' + '000' + '00' + '01' + '0000000', 2))
+
+    def aecu_disactivate_lift(self):
+        self.aecu_control_publisher.publish(int('00' + '000' + '00' + '10' + '0000000', 2))
 
 
-    #----------------------------------------------------------------------------------------
-    # Main callback for sp communication
-    #----------------------------------------------------------------------------------------
+
     def sp_to_aecu_unidriver_callback(self, aecu_cmd):
 
         self.sp_to_aecu_unidriver_timeout = time.time() + 2
-
         self.aecu_unidriver_got_msg_from_sp = True
         self.set_tool_idle = aecu_cmd.set_tool_idle
         self.run_tool_forward = aecu_cmd.run_tool_forward
         self.run_tool_in_reverse = aecu_cmd.run_tool_in_reverse
         self.inhibit_all_run_also_manual = aecu_cmd.inhibit_all_run_also_manual
+        self.activate_unload = aecu_cmd.activate_unload
+        self.disactivate_unload = aecu_cmd.disactivate_unload
+        self.activate_lift = aecu_cmd.activate_lift
+        self.disactivate_lift = aecu_cmd.disactivate_lift
 
         if self.set_tool_idle == True and\
             self.run_tool_forward == False and\
             self.run_tool_in_reverse == False and\
-            self.inhibit_all_run_also_manual == False:
+            self.inhibit_all_run_also_manual == False and\
+            self.activate_unload == False and\
+            self.disactivate_unload == False and\
+            self.activate_lift == False and\
+            self.disactivate_lift == False:
             self.aecu_set_tool_idle()
 
         elif self.set_tool_idle == False and\
             self.run_tool_forward == True and\
             self.run_tool_in_reverse == False and\
-            self.inhibit_all_run_also_manual == False:
+            self.inhibit_all_run_also_manual == False and\
+            self.activate_unload == False and\
+            self.disactivate_unload == False and\
+            self.activate_lift == False and\
+            self.disactivate_lift == False:
             self.aecu_run_tool_forward()
 
         elif self.set_tool_idle == False and\
             self.run_tool_forward == False and\
             self.run_tool_in_reverse == True and\
-            self.inhibit_all_run_also_manual == False:
+            self.inhibit_all_run_also_manual == False and\
+            self.activate_unload == False and\
+            self.disactivate_unload == False and\
+            self.activate_lift == False and\
+            self.disactivate_lift == False:
             self.aecu_run_tool_in_reverse()
         
         elif self.set_tool_idle == False and\
             self.run_tool_forward == False and\
             self.run_tool_in_reverse == False and\
-            self.inhibit_all_run_also_manual == True:
+            self.inhibit_all_run_also_manual == True and\
+            self.activate_unload == False and\
+            self.disactivate_unload == False and\
+            self.activate_lift == False and\
+            self.disactivate_lift == False:
             self.aecu_inhibit_all_run_also_manual()
+        
+        elif self.set_tool_idle == False and\
+            self.run_tool_forward == False and\
+            self.run_tool_in_reverse == False and\
+            self.inhibit_all_run_also_manual == False and\
+            self.activate_unload == True and\
+            self.disactivate_unload == False and\
+            self.activate_lift == False and\
+            self.disactivate_lift == False:
+            self.aecu_activate_unload()
+
+        elif self.set_tool_idle == False and\
+            self.run_tool_forward == False and\
+            self.run_tool_in_reverse == False and\
+            self.inhibit_all_run_also_manual == False and\
+            self.activate_unload == False and\
+            self.disactivate_unload == True and\
+            self.activate_lift == False and\
+            self.disactivate_lift == False:
+            self.aecu_disactivate_unload()
+
+        elif self.set_tool_idle == False and\
+            self.run_tool_forward == False and\
+            self.run_tool_in_reverse == False and\
+            self.inhibit_all_run_also_manual == False and\
+            self.activate_unload == False and\
+            self.disactivate_unload == False and\
+            self.activate_lift == True and\
+            self.disactivate_lift == False:
+            self.aecu_activate_lift()
+
+        elif self.set_tool_idle == False and\
+            self.run_tool_forward == False and\
+            self.run_tool_in_reverse == False and\
+            self.inhibit_all_run_also_manual == False and\
+            self.activate_unload == False and\
+            self.disactivate_unload == False and\
+            self.activate_lift == False and\
+            self.disactivate_lift == True:
+            self.aecu_disactivate_lift()
 
         else:
             pass
 
 
-    #----------------------------------------------------------------------------------------------------------------
-    # aecuCallback
-    #----------------------------------------------------------------------------------------------------------------
+
     def aecuCallback(self, aecu):
         self.aecu_bin = format(aecu.data, '016b')
         self.aecu_to_aecu_unidriver_timeout = time.time() + 2

@@ -4,45 +4,40 @@
 # authors, description, version
 #----------------------------------------------------------------------------------------
     # Endre Eres
-    # UR Pose Unification Driver
-    # V.0.4.0.
-    # NOT DONE YET
+    # MiR Pose Unification Driver
+    # V.0.1.0.
 #----------------------------------------------------------------------------------------
 
-'''
 import rospy
 import roslib
 import struct
-from unification_roscontrol.msg import URPoseSPToUni
-from unification_roscontrol.msg import URPoseUniToSP
+from unification_roscontrol.msg import MiRPoseSPToUni
+from unification_roscontrol.msg import MiRPoseUniToSP
 from std_msgs.msg import String
 import time
 
 
 
-class ur_pose_unidriver():
+class mir_pose_unidriver():
 
     def __init__(self):
         
-        rospy.init_node('ur_pose_unidriver', anonymous=False)
+        rospy.init_node('mir_pose_unidriver', anonymous=False)
 
-        self.ur_pose_so_to_unidriver_timeout = 100
-        self.ur_pose_smaster_to_unidriver_timeout = 100
+        self.sp_to_mir_pose_unidriver_timeout = 100
+        self.mir_pose_smaster_to_unidriver_timeout = 100
 
         # state
-        self.ur_pose_unidriver_got_msg_from_ur_pose_smaster = False
+        self.mir_pose_unidriver_got_msg_from_mir_pose_smaster = False
         self.act_pos = "_"
-        self.executing = False
-        self.planning = False
 
         # command
-        self.ur_pose_unidriver_got_msg_from_sp = False
-        self.got_cmd_should_plan = False
+        self.mir_pose_unidriver_got_msg_from_sp = False
         self.got_cmd_ref_pos = "_"
 
         # publishers
-        self.ur_pose_unidriver_to_smaster_publisher = rospy.Publisher('/unification_roscontrol/ur_pose_unidriver_to_smaster', String, queue_size=10)
-        self.ur_pose_unidriver_to_sp_publisher = rospy.Publisher('/unification_roscontrol/ur_pose_unidriver_to_sp', URPoseUniToSP, queue_size=10)
+        self.mir_pose_unidriver_to_smaster_publisher = rospy.Publisher('/unification_roscontrol/mir_pose_unidriver_to_smaster', String, queue_size=10)
+        self.mir_pose_unidriver_to_sp_publisher = rospy.Publisher('/unification_roscontrol/mir_pose_unidriver_to_sp', MiRPoseUniToSP, queue_size=10)
         
         rospy.sleep(1)
 
@@ -54,27 +49,25 @@ class ur_pose_unidriver():
     
     def main(self):
 
-        self.ur_pose_state = URPoseUniToSP()
+        self.mir_pose_state = MiRPoseUniToSP()
 
         while not rospy.is_shutdown():
             try:
-                rospy.Subscriber("/unification_roscontrol/ur_pose_sp_to_unidriver", URPoseSPToUni, self.ur_pose_sp_to_unidriver_callback)
+                rospy.Subscriber("/unification_roscontrol/sp_to_mir_pose_unidriver", MiRPoseSPToUni, self.sp_to_mir_pose_unidriver_callback)
 
-                if time.time() < self.ur_pose_sp_to_unidriver_timeout:
-                    URPoseSPToUni.ur_pose_unidriver_got_msg_from_sp = self.ur_pose_unidriver_got_msg_from_sp
-                    URPoseUniToSP.got_cmd_ref_pos = self.got_cmd_ref_pos
-                    URPoseUniToSP.got_cmd_should_plan = self.got_cmd_should_plan
+                if time.time() < self.sp_to_mir_pose_unidriver_timeout:
+                    MiRPoseUniToSP.mir_pose_unidriver_got_msg_from_sp = self.mir_mode_unidriver_got_msg_from_sp
+                    MiRPoseUniToSP.got_cmd_ref_pos = self.got_cmd_ref_pos
                 else:
-                    URPoseSPToUni.ur_pose_unidriver_got_msg_from_sp = False
-                    URPoseUniToSP.got_cmd_ref_pos = "_"
-                    URPoseUniToSP.got_cmd_should_plan = False
+                    MiRPoseUniToSP.mir_pose_unidriver_got_msg_from_sp = False
+                    MiRPoseUniToSP.got_cmd_ref_pos = "_"
 
             except rospy.ROSInterruptException:
                 pass
 
 
             try:
-                rospy.Subscriber("/unification_roscontrol/ur_pose_smaster_to_unidriver", String, self.mirPoseCallback)
+                rospy.Subscriber("/unification_roscontrol/mir_pose_smaster_to_unidriver", String, self.mirPoseCallback)
 
                 if time.time() < self.mir_pose_smaster_to_unidriver_timeout:
                     MiRPoseUniToSP.mir_pose_unidriver_got_msg_from_mir_pose_smaster = self.mir_pose_unidriver_got_msg_from_mir_pose_smaster
@@ -161,4 +154,3 @@ if __name__ == '__main__':
         mir_pose_unidriver()
     except rospy.ROSInterruptException:
         pass
-'''
