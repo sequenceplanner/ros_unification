@@ -2,7 +2,9 @@ bool ur_pose_unidriver_got_msg_from_sp
 bool got_cmd_should_plan
 string got_cmd_ref_pos
 
-bool ur_pose_unidriver_got_msg_from_ur_pose_smaster
+bool ur_pose_unidriver_got_msg_from_ur_tcp_pose_smaster
+bool ur_pose_unidriver_got_msg_from_ur_joint_pose_smaster
+bool ur_pose_unidriver_got_msg_from_moveit_smaster
 string act_pos
 bool executing
 bool planning
