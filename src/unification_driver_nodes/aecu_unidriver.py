@@ -77,7 +77,7 @@ class aecu_unidriver():
 
         while not rospy.is_shutdown():
             try:
-                rospy.Subscriber("/unification_roscontrol/sp_to_aecu_unidriver", AecuSPToUni, self.sp_to_aecu_unidriver_callback)
+                rospy.Subscriber("/unification_roscontrol/aecu_sp_to_unidriver", AecuSPToUni, self.sp_to_aecu_unidriver_callback)
 
                 if time.time() < self.sp_to_aecu_unidriver_timeout:
                     AecuUniToSP.aecu_unidriver_got_msg_from_sp = self.aecu_unidriver_got_msg_from_sp

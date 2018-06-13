@@ -69,7 +69,7 @@ class mir_mode_unidriver():
 
         while not rospy.is_shutdown():
             try:
-                rospy.Subscriber("/unification_roscontrol/sp_to_mir_mode_unidriver", MiRModeSPToUni, self.sp_to_mir_mode_unidriver_callback)
+                rospy.Subscriber("/unification_roscontrol/mir_mode_sp_to_unidriver", MiRModeSPToUni, self.sp_to_mir_mode_unidriver_callback)
 
                 if time.time() < self.sp_to_mir_mode_unidriver_timeout:
                     MiRModeUniToSP.mir_mode_unidriver_got_msg_from_sp = self.mir_mode_unidriver_got_msg_from_sp

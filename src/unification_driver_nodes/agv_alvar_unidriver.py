@@ -35,7 +35,7 @@ class agv_alvar_unidriver():
         self.xpos = 100
         self.ypos = 100
 
-        self.agv_alvar_state_publisher = rospy.Publisher("unification_roscontrol/agv_alvar_unistate", AGVAlvarUniToSP, queue_size=10)
+        self.agv_alvar_state_publisher = rospy.Publisher("unification_roscontrol/agv_alvar_unidriver_to_sp", AGVAlvarUniToSP, queue_size=10)
         
         rospy.sleep(1)
 

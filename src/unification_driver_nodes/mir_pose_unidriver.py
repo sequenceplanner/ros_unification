@@ -53,7 +53,7 @@ class mir_pose_unidriver():
 
         while not rospy.is_shutdown():
             try:
-                rospy.Subscriber("/unification_roscontrol/sp_to_mir_pose_unidriver", MiRPoseSPToUni, self.sp_to_mir_pose_unidriver_callback)
+                rospy.Subscriber("/unification_roscontrol/mir_pose_sp_to_unidriver", MiRPoseSPToUni, self.sp_to_mir_pose_unidriver_callback)
 
                 if time.time() < self.sp_to_mir_pose_unidriver_timeout:
                     MiRPoseUniToSP.mir_pose_unidriver_got_msg_from_sp = self.mir_mode_unidriver_got_msg_from_sp
@@ -127,21 +127,21 @@ class mir_pose_unidriver():
 
 
         
-    def mirPoseCallback(self, mir_mode):
+    def mirPoseCallback(self, mir_pose):
 
         self.mir_pose_smaster_to_unidriver_timeout = time.time() + 2
         self.mir_pose_unidriver_got_msg_from_mir_pose_smaster = True
 
-        if mir_mode.data == "kitting":
+        if mir_pose.data == "kitting":
             self.act_pos = "kitting"
 
-        elif mir_mode.data == "preassembly":
+        elif mir_pose.data == "preassembly":
             self.act_pos = "preassembly"
 
-        elif mir_mode.data == "assembly":
+        elif mir_pose.data == "assembly":
             self.act_pos = "assembly"
 
-        elif mir_mode.data == "charging":
+        elif mir_pose.data == "charging":
             self.act_pos = "charging"
         
         else:
