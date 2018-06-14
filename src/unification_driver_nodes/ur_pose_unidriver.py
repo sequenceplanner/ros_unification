@@ -5,7 +5,7 @@
 #----------------------------------------------------------------------------------------
     # Endre Eres
     # UR Pose Unification Driver
-    # V.0.4.0.
+    # V.0.5.0.
 #----------------------------------------------------------------------------------------
 
 import rospy
@@ -34,9 +34,9 @@ class ur_pose_unidriver():
         self.ur_pose_unidriver_got_msg_from_ur_tcp_pose_smaster = False
         self.ur_pose_unidriver_got_msg_from_ur_joint_pose_smaster = False
         self.ur_pose_unidriver_got_msg_from_moveit_smaster = False
-        self.act_pos = "unknown"
-        self.act_tcp_pos = "unknown"
-        self.act_joint_pos = "unknown"
+        self.act_pos = "_"
+        self.act_tcp_pos = "_"
+        self.act_joint_pos = "_"
         self.executing = False
         self.planning = False
 
@@ -79,75 +79,34 @@ class ur_pose_unidriver():
             except rospy.ROSInterruptException:
                 pass
 
-            
-            try:
-                rospy.Subscriber("/unification_roscontrol/ur_tcp_pose_smaster_to_unidriver", String, self.ur_tcp_pose_smaster_to_unidriver_callback)
-                rospy.Subscriber("/unification_roscontrol/ur_joint_pose_smaster_to_unidriver", URJointSmasterToUni, self.ur_joint_pose_smaster_to_unidriver_callback)
-                rospy.Subscriber("/unification_roscontrol/moveit_smaster_to_unidriver", String, self.moveit_smaster_to_unidriver_callback)
 
-                if time.time() < self.ur_tcp_pose_smaster_to_unidriver_timeout or\
-                    time.time() < self.ur_joint_pose_smaster_to_unidriver_timeout or\
-                    time.time() < self.moveit_smaster_to_unidriver_timeout:
-                    URPoseUniToSP.ur_pose_unidriver_got_msg_from_ur_tcp_pose_smaster = self.ur_pose_unidriver_got_msg_from_ur_tcp_pose_smaster
-                    URPoseUniToSP.ur_pose_unidriver_got_msg_from_ur_joint_pose_smaster = self.ur_pose_unidriver_got_msg_from_ur_joint_pose_smaster
-                    URPoseUniToSP.ur_pose_unidriver_got_msg_from_moveit_smaster = self.ur_pose_unidriver_got_msg_from_moveit_smaster
-                    URPoseUniToSP.planning = self.planning
-                    URPoseUniToSP.executing = self.executing
-
-                    if self.act_tcp_pos != "unknown" and self.act_joint_pos != "unknown":
-                        self.act_pos = self.act_joint_pos
-
-                    elif self.act_tcp_pos != "unknown" and self.act_joint_pos == "unknown":
-                        self.act_pos = self.act_tcp_pos
-
-                    elif self.act_tcp_pos == "unknown" and self.act_joint_pos != "unknown":
-                        self.act_pos = self.act_joint_pos
-
-                    elif self.act_tcp_pos == "unknown" and self.act_joint_pos == "unknown":
-                        self.act_pos = "unknown"
-
-                    else:
-                        pass
-                    
-                    URPoseUniToSP.act_pos = self.act_pos
-
-                else:
-                    URPoseUniToSP.ur_pose_unidriver_got_msg_from_ur_tcp_pose_smaster = False
-                    URPoseUniToSP.ur_pose_unidriver_got_msg_from_ur_joint_pose_smaster = False
-                    URPoseUniToSP.ur_pose_unidriver_got_msg_from_moveit_smaster = False
-                    URPoseUniToSP.planning = False
-                    URPoseUniToSP.executing = False
-                    URPoseUniToSP.act_pos = "_"
-
-                
-            except rospy.ROSInterruptException:
-                pass
-
-            '''
 
             try:
                 rospy.Subscriber("/unification_roscontrol/ur_tcp_pose_smaster_to_unidriver", String, self.ur_tcp_pose_smaster_to_unidriver_callback)
 
                 if time.time() < self.ur_tcp_pose_smaster_to_unidriver_timeout:
-                    URPoseUniToSP.ur_pose_unidriver_got_msg_from_ur_tcp_pose_smaster = self.ur_pose_unidriver_got_msg_from_ur_tcp_pose_smaster
-
+                    URPoseUniToSP.ur_pose_unidriver_got_msg_from_ur_tcp_pose_smaster = True
+                
                 else:
                     URPoseUniToSP.ur_pose_unidriver_got_msg_from_ur_tcp_pose_smaster = False
-                
+                    self.act_tcp_pos = "_"
+
             except rospy.ROSInterruptException:
                 pass
 
-
+            
             try:
                 rospy.Subscriber("/unification_roscontrol/ur_joint_pose_smaster_to_unidriver", URJointSmasterToUni, self.ur_joint_pose_smaster_to_unidriver_callback)
 
                 if time.time() < self.ur_joint_pose_smaster_to_unidriver_timeout:
-                    URPoseUniToSP.ur_pose_unidriver_got_msg_from_ur_joint_pose_smaster = self.ur_pose_unidriver_got_msg_from_ur_joint_pose_smaster
+                    URPoseUniToSP.ur_pose_unidriver_got_msg_from_ur_joint_pose_smaster = True
                     URPoseUniToSP.executing = self.executing
+                    
 
                 else:
                     URPoseUniToSP.ur_pose_unidriver_got_msg_from_ur_joint_pose_smaster = False
                     URPoseUniToSP.executing = False
+                    self.act_joint_pos = "_"
                 
             except rospy.ROSInterruptException:
                 pass
@@ -157,7 +116,7 @@ class ur_pose_unidriver():
                 rospy.Subscriber("/unification_roscontrol/moveit_smaster_to_unidriver", String, self.moveit_smaster_to_unidriver_callback)
 
                 if time.time() < self.moveit_smaster_to_unidriver_timeout:
-                    URPoseUniToSP.ur_pose_unidriver_got_msg_from_moveit_smaster = self.ur_pose_unidriver_got_msg_from_moveit_smaster
+                    URPoseUniToSP.ur_pose_unidriver_got_msg_from_moveit_smaster = True
                     URPoseUniToSP.planning = self.planning
 
                 else:
@@ -168,28 +127,37 @@ class ur_pose_unidriver():
                 pass
 
 
-            if self.act_tcp_pos != "unknown" and self.act_joint_pos != "unknown":
-                self.act_pos = self.act_joint_pos
-
-            elif self.act_tcp_pos != "unknown" and self.act_joint_pos == "unknown":
-                self.act_pos = self.act_tcp_pos
-            
-            elif self.act_tcp_pos == "unknown" and self.act_joint_pos != "unknown":
-                self.act_pos = self.act_joint_pos
-
-            elif self.act_tcp_pos == "unknown" and self.act_joint_pos == "unknown":
-                self.act_pos = "unknown"
-
-            else:
-                pass
-
+            self.test()
             URPoseUniToSP.act_pos = self.act_pos
-            '''
 
             self.ur_pose_unidriver_to_sp_publisher.publish(self.ur_pose_state)
             self.main_rate.sleep()
 
         rospy.spin()
+
+
+    def test(self):
+        if self.act_tcp_pos != "_" and self.act_joint_pos != "_":
+            if self.act_tcp_pos != "unknown" and self.act_joint_pos != "unknown":
+                self.act_pos = self.act_joint_pos
+            elif self.act_tcp_pos == "unknown" and self.act_joint_pos != "unknown":
+                self.act_pos = self.act_joint_pos
+            elif self.act_tcp_pos != "unknown" and self.act_joint_pos == "unknown":
+                self.act_pos = self.act_tcp_pos
+            else:
+                self.act_pos = "unknown"
+
+        elif self.act_tcp_pos == "_" and self.act_joint_pos != "_":
+            self.act_pos = self.act_joint_pos
+
+        elif self.act_tcp_pos != "_" and self.act_joint_pos == "_":
+            self.act_pos = self.act_tcp_pos
+        
+        else:
+            self.act_pos = "_"
+    
+
+            
 
     
     def ur_pose_sp_to_unidriver_callback(self, ur_mode_cmd):
@@ -197,18 +165,21 @@ class ur_pose_unidriver():
         self.ur_pose_sp_to_unidriver_timeout = time.time() + 2
         self.ur_pose_unidriver_got_msg_from_sp = True
 
-        if "TCP" in ur_mode_cmd.ref_pos and self.got_cmd_should_plan == False:
+        if "TCP" in ur_mode_cmd.ref_pos and ur_mode_cmd.should_plan == False:
             self.ur_pose_unidriver_to_ur_tcp_pose_smaster_publisher.publish(ur_mode_cmd.ref_pos)
             self.got_cmd_ref_pos = ur_mode_cmd.ref_pos
+            self.got_cmd_should_plan = ur_mode_cmd.should_plan
 
-        elif "JOINT" in ur_mode_cmd.ref_pos and self.got_cmd_should_plan == False:
+        elif "JOINT" in ur_mode_cmd.ref_pos and ur_mode_cmd.should_plan == False:
             self.ur_pose_unidriver_to_ur_joint_pose_smaster_publisher.publish(ur_mode_cmd.ref_pos)
             self.got_cmd_ref_pos = ur_mode_cmd.ref_pos
+            self.got_cmd_should_plan = ur_mode_cmd.should_plan
 
-        elif ("TCP" in ur_mode_cmd.ref_pos or "JOINT" in ur_mode_cmd.ref_pos) and self.got_cmd_should_plan == True:
+        elif ("TCP" in ur_mode_cmd.ref_pos or "JOINT" in ur_mode_cmd.ref_pos) and ur_mode_cmd.should_plan == True:
             self.ur_pose_unidriver_to_moveit_smaster_publisher.publish(ur_mode_cmd.ref_pos)
             self.got_cmd_ref_pos = ur_mode_cmd.ref_pos
-        
+            self.got_cmd_should_plan = ur_mode_cmd.should_plan
+     
         else:
             pass
 
@@ -234,7 +205,7 @@ class ur_pose_unidriver():
         self.moveit_smaster_to_unidriver_timeout = time.time() + 2
         self.up_pose_unidriver_got_msg_from_moveit_smaster = True
         
-        if moveit.planning == "planning":
+        if moveit.data == "planning":
             self.planning = True
 
         else:
