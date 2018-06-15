@@ -1,10 +1,9 @@
 bool recu_unidriver_got_msg_from_sp
-bool got_cmd_connect_to_tool
-bool got_cmd_disconect_from_tool
-bool got_cmd_release_lf
-bool got_cmd_grab_lf
+bool got_cmd_lock_rsp
+bool got_cmd_unlock_rsp
+bool got_cmd_open_gripper
+bool got_cmd_close_gripper
 
-bool recu_unidriver_got_msg_from_recu
 bool robot_not_connected_to_tool
 bool robot_connected_to_lf_tool
 bool robot_connected_to_atlas_tool
@@ -15,4 +14,3 @@ bool ladder_frame_not_connected
 bool ladder_frame_connected
 bool ladder_frame_connection_failure
 bool pressure_ok
-bool pressure_failure

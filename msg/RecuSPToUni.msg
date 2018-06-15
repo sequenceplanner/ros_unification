@@ -1,4 +1,4 @@
-bool connect_to_tool
-bool disconect_from_tool
-bool release_lf
-bool grab_lf
+bool lock_rsp
+bool unlock_rsp
+bool open_gripper
+bool close_gripper
