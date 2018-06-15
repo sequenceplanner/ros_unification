@@ -3,10 +3,13 @@
 #----------------------------------------------------------------------------------------
 # authors, description, version
 #----------------------------------------------------------------------------------------
-    # Endre Eres
+    # Endre Eres, Peter Lagerkvist
     # RECU Unification Driver based on Setek RECU ROS Driver specification
+    # Recu and Recu Unidriver nodes now merged into one
     # Java-ROS plugin for SP removes need for Kafka
-    # V.0.7.0.
+    # To emulate the Raspberry pi, uncomment the import for the emulator and comment the real
+    # Get the Raspi Emulator at: https://github.com/paly2/GPIOEmu
+    # V.0.8.0.
 #----------------------------------------------------------------------------------------
 
 import rospy
@@ -15,6 +18,8 @@ import struct
 from std_msgs.msg import UInt16
 from unification_roscontrol.msg import RecuSPToUni
 from unification_roscontrol.msg import RecuUniToSP
+#import GPIOEmu as GPIO
+import RPi.GPIO as GPIO
 import time
 
 
@@ -29,11 +34,42 @@ class recu_unidriver():
         self.APS_int_state = 0
         self.RECU_int_other = 0
 
+        self.GPO1 = 4
+        self.GPO2 = 17
+        self.GPO3 = 18
+        self.GPO4 = 27
+        self.GPI1 = 5
+        self.GPI2 = 6
+        self.GPI3 = 12
+        self.GPI4 = 13
+        self.GPI5 = 16
+        self.GPI6 = 19
+        self.GPI7 = 22
+        self.GPI8 = 23
+
+        GPIO.setwarnings(False)
+        GPIO.setmode(GPIO.BCM)               
+        GPIO.setup(self.GPO1, GPIO.OUT)
+        GPIO.setup(self.GPO2, GPIO.OUT)
+        GPIO.setup(self.GPO3, GPIO.OUT)
+        GPIO.setup(self.GPO4, GPIO.OUT)
+        GPIO.setup(self.GPI1, GPIO.IN)
+        GPIO.setup(self.GPI2, GPIO.IN)
+        GPIO.setup(self.GPI3, GPIO.IN)
+        GPIO.setup(self.GPI4, GPIO.IN)
+        GPIO.setup(self.GPI5, GPIO.IN)
+        GPIO.setup(self.GPI6, GPIO.IN)
+        GPIO.setup(self.GPI7, GPIO.IN)
+        GPIO.setup(self.GPI8, GPIO.IN)
+
+        GPIO.output(self.GPO1, False)
+        GPIO.output(self.GPO2, False)
+        GPIO.output(self.GPO3, False)
+        GPIO.output(self.GPO4, False)
+
         self.sp_to_recu_unidriver_timeout = 100
-        self.recu_to_recu_unidriver_timeout = 100
 
         # state
-        self.recu_unidriver_got_msg_from_recu = False
         self.robot_not_connected_to_tool = False
         self.robot_connected_to_lf_tool = False
         self.robot_connected_to_atlas_tool = False
@@ -44,17 +80,18 @@ class recu_unidriver():
         self.ladder_frame_gripped = False
         self.ladder_frame_connection_failure = False
         self.pressure_ok = False
-        self.pressure_failure = False
 
         # command
         self.recu_unidriver_got_msg_from_sp = False
-        self.connect_to_tool = False
-        self.disconect_from_tool = False
-        self.release_lf = False
-        self.grab_lf = False
+        self.lock_rsp = False
+        self.unlock_rsp = False
+        self.open_gripper = False
+        self.close_gripper = False
         
+        # subscribers
+        rospy.Subscriber("/unification_roscontrol/recu_sp_to_unidriver", RecuSPToUni, self.sp_to_recu_unidriver_callback)
+
         # publishers
-        self.recu_control_publisher = rospy.Publisher('/CT_RECU_con', UInt16, queue_size=10)
         self.recu_to_sp_publisher = rospy.Publisher('/unification_roscontrol/recu_unidriver_to_sp', RecuUniToSP, queue_size=10)
         
         rospy.sleep(1)
@@ -64,232 +101,161 @@ class recu_unidriver():
         self.main()
 
 
-    #----------------------------------------------------------------------------------------
-    # Main method
-    #----------------------------------------------------------------------------------------
     def main(self):
 
         self.recu_state = RecuUniToSP()
 
         while not rospy.is_shutdown():
-            try:
-                rospy.Subscriber("/unification_roscontrol/recu_sp_to_unidriver", RecuSPToUni, self.sp_to_recu_unidriver_callback)
 
-                if time.time() < self.sp_to_recu_unidriver_timeout:
-                    RecuUniToSP.recu_unidriver_got_msg_from_sp = self.recu_unidriver_got_msg_from_sp
-                    RecuUniToSP.connect_to_tool =  self.connect_to_tool
-                    RecuUniToSP.disconnect_from_tool = self.disconect_from_tool
-                    RecuUniToSP.release_lf = self.release_lf
-                    RecuUniToSP.grab_lf = self.grab_lf
-                else:
-                    RecuUniToSP.recu_unidriver_got_msg_from_sp = False
-                    RecuUniToSP.connect_to_tool = False
-                    RecuUniToSP.disconect_from_tool = False
-                    RecuUniToSP.release_lf = False
-                    RecuUniToSP.grab_lf = False
+            if time.time() < self.sp_to_recu_unidriver_timeout:
+                RecuUniToSP.recu_unidriver_got_msg_from_sp = self.recu_unidriver_got_msg_from_sp
+                RecuUniToSP.got_cmd_lock_rsp = self.lock_rsp
+                RecuUniToSP.got_cmd_unlock_rsp = self.unlock_rsp
+                RecuUniToSP.got_cmd_open_gripper = self.open_gripper
+                RecuUniToSP.got_cmd_close_gripper = self.close_gripper
+
+            else:
+                RecuUniToSP.recu_unidriver_got_msg_from_sp = False
+                RecuUniToSP.got_cmd_lock_rsp = False
+                RecuUniToSP.got_cmd_unlock_rsp = False
+                RecuUniToSP.got_cmd_open_gripper = False
+                RecuUniToSP.got_cmd_close_gripper = False
                 
-            except rospy.ROSInterruptException:
-                pass  
+
+            RecuUniToSP.robot_not_connected_to_tool = self.robot_not_connected_to_tool
+            RecuUniToSP.robot_connected_to_lf_tool = self.robot_connected_to_lf_tool
+            RecuUniToSP.robot_connected_to_atlas_tool = self.robot_connected_to_atlas_tool
+            RecuUniToSP.robot_connected_to_filter_tool = self.robot_connected_to_filter_tool
+            RecuUniToSP.undefined_connection_detected = self.undefined_connection_detected
+            RecuUniToSP.robot_tool_connection_failure = self.robot_tool_connection_failure
+            RecuUniToSP.ladder_frame_not_connected = self.ladder_frame_not_gripped
+            RecuUniToSP.ladder_frame_connected = self.ladder_frame_gripped
+            RecuUniToSP.ladder_frame_connection_failure = self.ladder_frame_connection_failure
+            RecuUniToSP.pressure_ok = self.pressure_ok
 
 
-            try:
-                rospy.Subscriber("/RECU_status", UInt16, self.recuCallback)
 
-                if time.time() < self.recu_to_recu_unidriver_timeout:
-                    RecuUniToSP.recu_unidriver_got_msg_from_recu = self.recu_unidriver_got_msg_from_recu
-                    RecuUniToSP.robot_not_connected_to_tool = self.robot_not_connected_to_tool
-                    RecuUniToSP.robot_connected_to_lf_tool = self.robot_connected_to_lf_tool
-                    RecuUniToSP.robot_connected_to_atlas_tool = self.robot_connected_to_atlas_tool
-                    RecuUniToSP.robot_connected_to_filter_tool = self.robot_connected_to_filter_tool
-                    RecuUniToSP.undefined_connection_detected = self.undefined_connection_detected
-                    RecuUniToSP.robot_tool_connection_failure = self.robot_tool_connection_failure
-                    RecuUniToSP.ladder_frame_not_gripped = self.ladder_frame_not_gripped
-                    RecuUniToSP.ladder_frame_gripped = self.ladder_frame_gripped
-                    RecuUniToSP.ladder_frame_connection_failure = self.ladder_frame_connection_failure
-                    RecuUniToSP.pressure_ok = self.pressure_ok
-                    RecuUniToSP.pressure_failure = self.pressure_failure
-                else:
-                    RecuUniToSP.recu_unidriver_got_msg_from_recu = False
-                    RecuUniToSP.robot_not_connected_to_tool = False
-                    RecuUniToSP.robot_connected_to_lf_tool = False
-                    RecuUniToSP.robot_connected_to_atlas_tool = False
-                    RecuUniToSP.robot_connected_to_filter_tool = False
-                    RecuUniToSP.undefined_connection_detected = False
-                    RecuUniToSP.robot_tool_connection_failure = False
-                    RecuUniToSP.ladder_frame_not_gripped = False
-                    RecuUniToSP.ladder_frame_gripped = False
-                    RecuUniToSP.ladder_frame_connection_failure = False
-                    RecuUniToSP.pressure_ok = False
-                    RecuUniToSP.pressure_failure = False
+            if GPIO.input(self.GPI3) == 0 and\
+                GPIO.input(self.GPI4) == 0 and\
+                GPIO.input(self.GPI5) == 0:
+                self.robot_not_connected_to_tool = True
+                self.robot_connected_to_filter_tool = False
+                self.robot_connected_to_atlas_tool = False
+                self.robot_connected_to_lf_tool = False
+                self.undefined_connection_detected = False
             
-            except rospy.ROSInterruptException:
-                pass
+            elif GPIO.input(self.GPI3) == 1 and\
+                GPIO.input(self.GPI4) == 0 and\
+                GPIO.input(self.GPI5) == 0:
+                self.robot_not_connected_to_tool = False
+                self.robot_connected_to_filter_tool = True
+                self.robot_connected_to_atlas_tool = False
+                self.robot_connected_to_lf_tool = False
+                self.undefined_connection_detected = False
+
+            elif GPIO.input(self.GPI3) == 0 and\
+                GPIO.input(self.GPI4) == 1 and\
+                GPIO.input(self.GPI5) == 0:
+                self.robot_not_connected_to_tool = False
+                self.robot_connected_to_filter_tool = False
+                self.robot_connected_to_atlas_tool = True
+                self.robot_connected_to_lf_tool = False
+                self.undefined_connection_detected = False
+
+            elif GPIO.input(self.GPI3) == 0 and\
+                GPIO.input(self.GPI4) == 0 and\
+                GPIO.input(self.GPI5) == 1:
+                self.robot_not_connected_to_tool = False
+                self.robot_connected_to_filter_tool = False
+                self.robot_connected_to_atlas_tool = False
+                self.robot_connected_to_lf_tool = True
+                self.undefined_connection_detected = False
+
+            else:
+                self.robot_not_connected_to_tool = False
+                self.robot_connected_to_filter_tool = False
+                self.robot_connected_to_atlas_tool = False
+                self.robot_connected_to_lf_tool = False
+                self.undefined_connection_detected = True
+
+
+
+            if GPIO.input(self.GPI1) == 0 and\
+                GPIO.input(self.GPI2) == 0:
+                self.ladder_frame_not_gripped = True
+                self.ladder_frame_gripped = False
+                self.ladder_frame_connection_failure = False
+
+            elif GPIO.input(self.GPI1) == 1 and\
+                GPIO.input(self.GPI2) == 1:
+                self.ladder_frame_not_gripped = False
+                self.ladder_frame_gripped = True
+                self.ladder_frame_connection_failure = False
+
+            else:
+                self.ladder_frame_not_gripped = False
+                self.ladder_frame_gripped = False
+                self.ladder_frame_connection_failure = True
+            
+
+            if GPIO.input(self.GPI7) == 1:
+                self.pressure_ok = True
+            
+            else:
+                self.pressure_ok = False
+
 
             self.recu_to_sp_publisher.publish(self.recu_state)
             self.main_rate.sleep()
 
         rospy.spin()
 
+
+    def recu_lock_rsp(self):
+        GPIO.output(self.GPO1, 0)
+
+    def recu_unlock_rsp(self):
+        GPIO.output(self.GPO1, 1)
+
+    def recu_close_gripper(self):
+        GPIO.output(self.GPO2, 0)
+
+    def recu_open_gripper(self):
+        GPIO.output(self.GPO2, 1)
+
     
-    #----------------------------------------------------------------------------------------
-    # bridge to driver methods
-    #----------------------------------------------------------------------------------------
-    def recu_connect_tool(self):
-        self.recu_control_publisher.publish(int('01' + '00' + '000000000000', 2))
-
-    def recu_disconnect_tool(self):
-        self.recu_control_publisher.publish(int('10' + '00' + '000000000000', 2))
-
-    def recu_release_lf(self):
-        self.recu_control_publisher.publish(int('00' + '01' + '000000000000', 2))
-
-    def recu_grab_lf(self):
-        self.recu_control_publisher.publish(int('00' + '10' + '000000000000', 2))
-
-
-    #----------------------------------------------------------------------------------------
-    # Main callback for SP communication
-    #----------------------------------------------------------------------------------------
     def sp_to_recu_unidriver_callback(self, recu_cmd):
 
         self.sp_to_recu_unidriver_timeout = time.time() + 2
-
         self.recu_unidriver_got_msg_from_sp = True
-        self.connect_to_tool = recu_cmd.connect_to_tool
-        self.disconect_from_tool = recu_cmd.disconect_from_tool
-        self.release_lf = recu_cmd.release_lf
-        self.grab_lf = recu_cmd.grab_lf
+        self.lock_rsp = recu_cmd.lock_rsp
+        self.unlock_rsp = recu_cmd.unlock_rsp
+        self.open_gripper = recu_cmd.open_gripper
+        self.close_gripper = recu_cmd.close_gripper
 
-        if self.connect_to_tool == True and\
-            self.disconect_from_tool == False and\
-            self.release_lf == False and\
-            self.grab_lf == False:
-            self.recu_connect_tool()
+        if self.lock_rsp == True and\
+            self.unlock_rsp == False and\
+            self.open_gripper == False and\
+            self.close_gripper == False:
+            self.recu_lock_rsp()
 
-        elif self.connect_to_tool == False and\
-            self.disconect_from_tool == True and\
-            self.release_lf == False and\
-            self.grab_lf == False:
-            self.recu_disconnect_tool()
+        elif self.lock_rsp == False and\
+            self.unlock_rsp == True and\
+            self.open_gripper == False and\
+            self.close_gripper == False:
+            self.recu_unlock_rsp()
 
-        elif self.connect_to_tool == False and\
-            self.disconect_from_tool == False and\
-            self.release_lf == False and\
-            self.grab_lf == False:
-            self.recu_release_lf()
+        elif self.lock_rsp == False and\
+            self.unlock_rsp == False and\
+            self.open_gripper == True and\
+            self.close_gripper == False:
+            self.recu_open_gripper()
 
-        elif self.connect_to_tool == False and\
-            self.disconect_from_tool == False and\
-            self.release_lf == False and\
-            self.grab_lf == True:
-            self.recu_grab_lf()
-
-        else:
-            pass
-
-
-    #----------------------------------------------------------------------------------------------------------------
-    # recuCallback
-    #----------------------------------------------------------------------------------------------------------------
-    def recuCallback(self, recu):
-        self.recu_bin = format(recu.data, '016b')
-        self.recu_to_recu_unidriver_timeout = time.time() + 2
-        self.recu_unidriver_got_msg_from_recu = True
-
-        self.RTC_int_state = int(self.recu_bin[0:3], 2)
-        self.LFG_int_state = int(self.recu_bin[3:6], 2)
-        self.APS_int_state = int(self.recu_bin[6:8], 2)
-        self.RECU_int_other = int(self.recu_bin[8:16], 2)
-
-        if self.RTC_int_state == 1:
-            #self.RTC_state = "robot_not_connected_to_tool"
-            self.robot_not_connected_to_tool = True
-            self.robot_connected_to_lf_tool = False
-            self.robot_connected_to_atlas_tool = False
-            self.robot_connected_to_filter_tool = False
-            self.undefined_connection_detected = False
-            self.robot_tool_connection_failure = False
-
-        elif self.RTC_int_state == 2:
-            #self.RTC_state = "robot_connected_to_lf_tool"
-            self.robot_not_connected_to_tool = False
-            self.robot_connected_to_lf_tool = True
-            self.robot_connected_to_atlas_tool = False
-            self.robot_connected_to_filter_tool = False
-            self.undefined_connection_detected = False
-            self.robot_tool_connection_failure = False
-
-        elif self.RTC_int_state == 3:
-            #self.RTC_state = "robot_connected_to_atlas_tool"
-            self.robot_not_connected_to_tool = False
-            self.robot_connected_to_lf_tool = False
-            self.robot_connected_to_atlas_tool = True
-            self.robot_connected_to_filter_tool = False
-            self.undefined_connection_detected = False
-            self.robot_tool_connection_failure = False
-
-        elif self.RTC_int_state == 4:
-            #self.RTC_state = "robot_connected_to_filter_tool"
-            self.robot_not_connected_to_tool = False
-            self.robot_connected_to_lf_tool = False
-            self.robot_connected_to_atlas_tool = False
-            self.robot_connected_to_filter_tool = True
-            self.undefined_connection_detected = False
-            self.robot_tool_connection_failure = False
-
-        elif self.RTC_int_state == 5:
-            #self.RTC_state = "undefined_connection_detected"
-            self.robot_not_connected_to_tool = False
-            self.robot_connected_to_lf_tool = False
-            self.robot_connected_to_atlas_tool = False
-            self.robot_connected_to_filter_tool = False
-            self.undefined_connection_detected = True
-            self.robot_tool_connection_failure = False
-
-        elif self.RTC_int_state == 6:
-            #self.RTC_state = "robot_tool_connection_failure"
-            self.robot_not_connected_to_tool = False
-            self.robot_connected_to_lf_tool = False
-            self.robot_connected_to_atlas_tool = False
-            self.robot_connected_to_filter_tool = False
-            self.undefined_connection_detected = False
-            self.robot_tool_connection_failure = True
-
-        else:
-            pass
-
-
-        if self.LFG_int_state == 1:
-            #self.LFG_state = "lf_not_connected"
-            self.ladder_frame_not_gripped = True
-            self.ladder_frame_gripped = False
-            self.ladder_frame_connection_failure = False
-
-        elif self.LFG_int_state == 2:
-            #self.LFG_state = "lf_connected"
-            self.ladder_frame_not_gripped = False
-            self.ladder_frame_gripped = True
-            self.ladder_frame_connection_failure = False
-
-        elif self.LFG_int_state== 3:
-            #self.LFG_state = "lf_connection_failure"
-            self.ladder_frame_not_gripped = False
-            self.ladder_frame_gripped = False
-            self.ladder_frame_connection_failure = True
-
-        else:
-            pass
-
-
-        if self.APS_int_state == 1:
-            #self.APS_state = "pressure_ok"
-            self.pressure_ok = True
-            self.pressure_failure = False
-
-        elif self.APS_int_state == 2:
-            #self.APS_state = "pressure_failure"
-            self.pressure_ok = False
-            self.pressure_failure = True
+        elif self.lock_rsp == False and\
+            self.unlock_rsp == False and\
+            self.open_gripper == False and\
+            self.close_gripper == True:
+            self.recu_close_gripper()
 
         else:
             pass
