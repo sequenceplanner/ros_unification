@@ -4,21 +4,13 @@ bool got_cmd_run_tool_forward
 bool got_cmd_run_tool_in_reverse
 bool got_cmd_inhibit_all_run_also_manual
 bool got_cmd_activate_unload
-bool got_cmd_disactivate_unload
 bool got_cmd_activate_lift
-bool got_cmd_disactivate_lift
 
-bool aecu_unidriver_got_msg_from_aecu
 bool tool_is_idle
-bool tool_is_run_manually_forward
-bool tool_is_run_manually_reverse
-bool tool_is_run_from_ros_forward
-bool tool_is_run_from_ros_reverse
-bool unknown_run_status
+bool tool_is_running_forward
+bool tool_is_running_reverse
 bool positioned_at_home_station
 bool operating_position
 bool pre_home_position
 bool unclear_position
-bool torque_not_reached
 bool programmed_torque_reached
-bool unknown_torque
