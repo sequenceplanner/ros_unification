@@ -1,27 +1,27 @@
 #!/usr/bin/env python
 
-import json
+#----------------------------------------------------------------------------------------
+# authors, description, version
+#----------------------------------------------------------------------------------------
+    # Endre Eres
+    # UR Mode Scene Master
+    # V.0.5.0.
+#----------------------------------------------------------------------------------------
+
 import rospy
 import roslib
 import socket
 import struct
 import threading
 from std_msgs.msg import String
-from sensor_msgs.msg import JointState
-from geometry_msgs.msg import WrenchStamped
-from geometry_msgs.msg import Point
-import tf
 import time
-import numpy
-from math import pi
 
-
-class ur_safetymode_publisher():
+class ur_mode_smaster():
 
     def __init__(self):
         
-        rospy.init_node('ur_safetymode_publisher', anonymous=False)
-        self.scene_master_ur_safetymode_publisher = rospy.Publisher('ur_safetymode', String, queue_size=200)
+        rospy.init_node('ur_mode_smaster', anonymous=False)
+        self.scene_master_ur_safetymode_publisher = rospy.Publisher('unification_roscontrol/ur_mode_smaster_to_unidriver', String, queue_size=200)
         
         self.tcp_rate = rospy.Rate(10)
 
@@ -52,6 +52,6 @@ class ur_safetymode_publisher():
         
 if __name__ == '__main__':
     try:
-        ur_safetymode_publisher()
+        ur_mode_smaster()
     except rospy.ROSInterruptException:
         pass
