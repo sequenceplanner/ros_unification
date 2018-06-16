@@ -261,7 +261,7 @@ class ur_pose_unidriver():
         self.scene = PlanningSceneInterface2()
         self.g = MoveGroupInterface("manipulator", "base")
 
-        self.URPosePublisher = rospy.Publisher("/unification/ur_pose_unidriver/state", URPose1, queue_size=10)
+        self.URPosePublisher = rospy.Publisher("/unification_roscontrol/ur_pose_unidriver_to_sp", URPose1, queue_size=10)
 
 
         self.joint_names = ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
@@ -294,6 +294,14 @@ class ur_pose_unidriver():
         self.DummyJoint3 = [-1.859448258076803, -1.1679099241839808, 0.7398859858512878, -1.5353425184832972, 1.5146180391311646, -0.6263755003558558]
         self.DummyJoint4 = [-2.388958994542257, -1.5455425421344202, 1.5693951845169067, -1.9648574034320276, 1.715777039527893, -0.1352313200580042]
                             
+
+        self.HomePoseJoint = [7.190534961409867e-05, 1.8715858459472656e-05, 1.5707674026489258, 1.570879578590393, -1.5707996527301233, 1.5708075761795044]
+
+        self.farPreAttachAtlas = [0.08091636747121811, -0.08208352724184209, 1.2508978843688965, 1.8541206121444702, -1.6537349859820765, 0.3931218981742859]
+
+        self.closePreAttachAtlas = [0.07584179192781448, -0.025521580372945607, 1.0806331634521484, 1.9460309743881226, -1.6481269041644495, 0.3930979371070862]
+
+        self.attachAtlas = [0.07584179192781448, -0.025521580372945607, 1.0806331634521484, 1.9460309743881226, -1.6481269041644495, 0.3930979371070862]
 
         rospy.sleep(1)
 
@@ -620,6 +628,10 @@ class ur_pose_unidriver():
         self.moveJ(self.URPreMeas1Joint, a=1.5, v=5, t=5, r=0)
         rospy.sleep(5.5)
 
+    def move1(self):
+        self.moveJ(self.HomePoseJoint, a=1.5, v=5, t=3, r=0)
+        rospy.sleep(3.5)
+
     
     #URPreMeas1W           
     #URPreMeas1M           
@@ -628,12 +640,14 @@ class ur_pose_unidriver():
     #URPostMeas1M          
     #URPostMeas1ToPreMeas2J
 
-    
+    self.moveJ(self.URPreMeas1Joint, a=1.5, v=5, t=5, r=0)
+        rospy.sleep(5.5)
     #----------------------------------------------------------------------------------------
     # Main method
     #----------------------------------------------------------------------------------------
     def main(self):
-        
+
+        '''
         self.scene.remove_world_object()
         self.scene.remove_attached_object("tool0")
         rospy.sleep(2)
@@ -673,6 +687,8 @@ class ur_pose_unidriver():
             #self.ur_pose_state_publisher.publish(self.ur_pose_state)
             self.main_rate.sleep()
     
+        '''
+
         rospy.spin()
 
         '''

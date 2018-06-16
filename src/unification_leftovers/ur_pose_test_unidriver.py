@@ -220,8 +220,9 @@ from geometry_msgs.msg import Pose
 from moveit_python import MoveGroupInterface, PlanningSceneInterface
 from moveit_commander import PlanningSceneInterface as PlanningSceneInterface2
 from moveit_commander import roscpp_initialize, roscpp_shutdown
-from unification_roscontrol.msg import URPose1
-from unification_roscontrol.msg import URPose2
+from ur_msgs.srv import SetIO
+#from unification_roscontrol.msg import URPose1
+#from unification_roscontrol.msg import URPose2
 #from moveit_msgs.msg import RobotState, Grasp
 import moveit_msgs.msg
 #from pyassimp import pyassimp
@@ -231,7 +232,7 @@ import time
 import numpy
 from math import pi
 
-HOST = "0.0.0.0"
+HOST = "192.168.1.14"
 RTE_PORT = 30003
 
 class ur_pose_unidriver():
@@ -249,7 +250,7 @@ class ur_pose_unidriver():
         #self.ur_pose_state_planning = False
 
         
-
+        
         self.socket_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket_client.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 10)
         self.socket_client.connect((HOST, RTE_PORT))
@@ -258,11 +259,11 @@ class ur_pose_unidriver():
         
         #self.p = PlanningSceneInterface("base")
         #self.m = PlanningSceneInterface("base_footprint")
-        self.scene = PlanningSceneInterface2()
-        self.g = MoveGroupInterface("manipulator", "base")
+        #self.scene = PlanningSceneInterface2()
+        #self.g = MoveGroupInterface("manipulator", "base")
 
-        self.URPosePublisher = rospy.Publisher("/unification/ur_pose_unidriver/state", URPose1, queue_size=10)
-        self.mircall = rospy.Publisher("/sp_to_fake_mir_unidriver", String, queue_size=10)
+        #self.URPosePublisher = rospy.Publisher("/unification/ur_pose_unidriver/state", URPose1, queue_size=10)
+        #self.mircall = rospy.Publisher("/sp_to_fake_mir_unidriver", String, queue_size=10)
         
 
 
@@ -273,7 +274,7 @@ class ur_pose_unidriver():
         self.isclose_tolerance = 0.1
 
         rospy.Subscriber("/joint_states", JointState, self.jointCallback)
-        rospy.Subscriber("/unification/ur_pose_unidriver/cmd", URPose2, self.ur_pose_unistate_callback)
+        #rospy.Subscriber("/unification/ur_pose_unidriver/cmd", URPose2, self.ur_pose_unistate_callback)
         #rospy.Subscriber("/ur_tcp_pose", Point, self.tcpCallback)
 
         self.URScriptPublisher = rospy.Publisher("ur_driver/URScript", String, queue_size=200)
@@ -340,6 +341,26 @@ class ur_pose_unidriver():
         self.URAtFilter3TightenedJoint = [0.48505112528800964, -1.0664451758014124, 1.0908207893371582, 1.5464204549789429, -1.570796314870016, 2.464404821395874]
         self.URAtFilter3TightenedTcp = [-0.588972182188, -0.495733728171, 0.741349971306, 0.0, 0.0, 4.5203]
         self.URAboveFilter3TightenedTcp = [-0.588972182188, -0.495733728171, 0.641349971306, 0.0, 0.0, 4.5203]
+
+        self.HomePoseJoint = [7.190534961409867e-05, 1.8715858459472656e-05, 1.5707674026489258, 1.570879578590393, -1.5707996527301233, 1.5708075761795044]
+
+        self.farPreAttachAtlas = [0.08091636747121811, -0.08208352724184209, 1.2508978843688965, 1.8541206121444702, -1.6537349859820765, 0.3931218981742859]
+
+        self.closePreAttachAtlas = [0.07584179192781448, -0.025521580372945607, 1.0806331634521484, 1.9460309743881226, -1.6481269041644495, 0.3930979371070862]
+
+        self.attachAtlas = [0.07507368177175522, -0.015592877064840138, 1.0493826866149902, 1.9880634546279907, -1.6393078009234827, 0.3490772545337677]
+
+        self.parPreOilFilter = [0.30001869797706604, -0.3848684469806116, 2.0841331481933594, 4.55634069442749, -1.300816837941305, 1.8951489925384521]
+
+        self.closePreOilFilter = [0.36263853311538696, -0.35765153566469365, 2.195680618286133, 4.416423320770264, -1.2385347525226038, 1.8965516090393066]
+
+        self.attachOilFilter = [0.37675783038139343, -0.35070640245546514, 2.214353561401367, 4.3903584480285645, -1.224428955708639, 1.896863579750061]
+
+        self.afterOFAttach1 = [0.3760264217853546, -0.35041886964906865, 2.2103028297424316, 4.3942670822143555, -1.225243870412008, 1.9569019079208374]
+
+        self.afterOFAttach2 = [0.3740587532520294, -0.15407115617860967, 2.0707454681396484, 4.337353706359863, -1.2299893538104456, 1.9576332569122314]
+
+        self.afterOFAttach3 = [0.2984592616558075, -0.1938384214984339, 1.9496898651123047, 4.4996418952941895, -1.3048918882953089, 1.9559427499771118]
 
 
         #------------------------------------------------------------------------------------------------------------
@@ -428,6 +449,15 @@ class ur_pose_unidriver():
         #pitch = euler[1]
         #yaw = euler[2]
 
+    def set_IO_states(self, fun, pin, state):
+        rospy.wait_for_service('/ur_driver/set_io')
+        try:
+            set_io = rospy.ServiceProxy('/ur_driver/set_io', SetIO)
+            resp = set_io(fun, pin, state)
+            return resp
+        except rospy.ServiceException, e:
+            print "Service call Failed: %s"%e
+
 
     #------------------------------------------------------------------------------------------------------------
     # Hardcoded moves via Socket
@@ -448,6 +478,12 @@ class ur_pose_unidriver():
 
     def sendURScript(self, script):
         self.socket_client.send(script + "\n")
+
+    def releasersp(self):
+        self.set_IO_states(1, 0, 1)
+
+    def activatersp(self):
+        self.set_IO_states(1, 0, 0)
 
 
     #------------------------------------------------------------------------------------------------------------
@@ -1042,6 +1078,95 @@ class ur_pose_unidriver():
     #----------------------------------------------------------------------------------------
     def main(self):
         
+        '''
+        self.releasersp()
+        rospy.sleep(1)
+        self.activatersp()
+        rospy.sleep(1)
+        self.releasersp()
+        rospy.sleep(1)
+        '''
+
+        '''
+        self.moveJ(self.afterOFAttach3, a=1.5, v=5, t=3, r=0)
+        rospy.sleep(3.5)
+
+        self.moveJ(self.afterOFAttach2, a=1.5, v=5, t=3, r=0)
+        rospy.sleep(3.5)
+
+        self.moveJ(self.afterOFAttach1, a=1.5, v=5, t=3, r=0)
+        rospy.sleep(3.5)
+
+        self.moveJ(self.attachOilFilter, a=1.5, v=5, t=3, r=0)
+        rospy.sleep(3.5)
+
+        self.releasersp()
+        rospy.sleep(1)
+
+        self.moveJ(self.closePreOilFilter, a=1.5, v=5, t=3, r=0)
+        rospy.sleep(3.5)
+
+        self.moveJ(self.parPreOilFilter, a=1.5, v=5, t=3, r=0)
+        rospy.sleep(3.5)
+        '''
+
+        self.moveJ(self.HomePoseJoint, a=1.5, v=5, t=3, r=0)
+        rospy.sleep(3.5)
+        '''
+
+        self.moveJ(self.farPreAttachAtlas, a=1.5, v=5, t=3, r=0)
+        rospy.sleep(3.5)
+
+        self.moveJ(self.closePreAttachAtlas, a=1.5, v=5, t=3, r=0)
+        rospy.sleep(3.5)
+
+        self.moveJ(self.attachAtlas, a=1.5, v=5, t=3, r=0)
+        rospy.sleep(3.5)
+
+        self.activatersp()
+        rospy.sleep(1)
+        '''
+
+
+
+        '''
+        self.moveJ(self.HomePoseJoint, a=1.5, v=5, t=3, r=0)
+        rospy.sleep(3.5)
+
+        self.moveJ(self.parPreOilFilter, a=1.5, v=5, t=3, r=0)
+        rospy.sleep(3.5)
+
+        self.moveJ(self.closePreOilFilter, a=1.5, v=5, t=3, r=0)
+        rospy.sleep(3.5)
+
+        self.moveJ(self.attachOilFilter, a=1.5, v=5, t=3, r=0)
+        rospy.sleep(3.5)
+
+        self.activatersp()
+        rospy.sleep(1)
+
+        self.moveJ(self.afterOFAttach1, a=1.5, v=5, t=3, r=0)
+        rospy.sleep(3.5)
+
+        self.moveJ(self.afterOFAttach2, a=1.5, v=5, t=3, r=0)
+        rospy.sleep(3.5)
+
+        self.moveJ(self.afterOFAttach3, a=1.5, v=5, t=3, r=0)
+        rospy.sleep(3.5)
+
+        '''
+
+
+        #self.moveJ(self.farPreAttachAtlas, a=1.5, v=5, t=3, r=0)
+        #rospy.sleep(3.5)
+
+        #self.moveJ(self.closePreAttachAtlas, a=1.5, v=5, t=3, r=0)
+        #rospy.sleep(3.5)
+
+        #self.moveJ(self.attachAtlas, a=1.5, v=5, t=3, r=0)
+        #rospy.sleep(3.5)
+        
+        '''
         self.scene.remove_world_object()
         self.scene.remove_attached_object("tool0")
         rospy.sleep(2)
@@ -1194,7 +1319,9 @@ class ur_pose_unidriver():
             #self.ur_pose_state_publisher.publish(self.ur_pose_state)
             self.main_rate.sleep()
     
+        '''
         rospy.spin()
+        
 
         '''
         self.scene.remove_world_object()
@@ -1311,6 +1438,7 @@ class ur_pose_unidriver():
             numpy.isclose(self.y, self.URAboveFilter1TightenedTcp[1], self.isclose_tolerance) and\
             numpy.isclose(self.z, self.URAboveFilter1TightenedTcp[2], self.isclose_tolerance):
             self.ur_tcp_pose_state = 'URAboveFilter1TightenedTcp'
+
 
         else:
             self.ur_tcp_pose_state = self.ur_pose_state
