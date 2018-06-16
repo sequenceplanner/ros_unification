@@ -18,8 +18,8 @@ import struct
 from std_msgs.msg import UInt16
 from unification_roscontrol.msg import RecuSPToUni
 from unification_roscontrol.msg import RecuUniToSP
-#import GPIOEmu as GPIO
-import RPi.GPIO as GPIO
+import GPIOEmu as GPIO
+#import RPi.GPIO as GPIO
 import time
 
 
@@ -28,11 +28,6 @@ class recu_unidriver():
     def __init__(self):
         
         rospy.init_node('recu_unidriver', anonymous=False)
-
-        self.RTC_int_state = 0
-        self.LFG_int_state = 0
-        self.APS_int_state = 0
-        self.RECU_int_other = 0
 
         self.GPO1 = 4
         self.GPO2 = 17

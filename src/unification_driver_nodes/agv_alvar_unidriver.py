@@ -53,7 +53,7 @@ class agv_alvar_unidriver():
 
         while not rospy.is_shutdown():
             try:
-                rospy.Subscriber("/agv_alvar_smaster_to_unidriver", Point, self.agvAlvarCallback)
+                rospy.Subscriber("unification_roscontrol/agv_alvar_smaster_to_unidriver", Point, self.agvAlvarCallback)
 
                 if time.time() < self.agv_alvar_smaster_to_unidriver_timeout:
                     AGVAlvarUniToSP.agv_alvar_unidriver_got_msg_from_agv_alvar_smaster = self.agv_alvar_unidriver_got_msg_from_agv_alvar_smaster

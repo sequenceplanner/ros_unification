@@ -173,7 +173,7 @@ class mir_mode_unidriver():
 
         elif self.set_state_to_ready == False and\
             self.set_state_to_paused == False and\
-            self.set_state_to_executin == False and\
+            self.set_state_to_executing == False and\
             self.set_state_to_aborted == True:
             self.set_mir_mode_to_aborted()
 
