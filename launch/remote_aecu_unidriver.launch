@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<launch>
+  <machine
+    name="PI_3"
+    address="192.168.1.12"
+    user="peter"
+    password="atalante"
+    env-loader="/home/peter/catkin_ws/src/remoteenv.sh"
+  />
+  
+  <!-- AECU Unidriver -->
+  <node
+    machine="PI_3"
+    name="aecu"
+    pkg="pkg3a"
+    type="aecu_redux.py"
+  />
+</launch>

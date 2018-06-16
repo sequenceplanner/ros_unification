@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<launch>
+  <machine
+    name="PI_1"
+    address="192.168.1.12"
+    user="peter"
+    password="atalante"
+    env-loader="/home/peter/catkin_ws/src/remoteenv.sh"
+  />
+  
+  <!-- RECU Unidriver -->
+  <node
+    machine="PI_1"
+    name="recu"
+    pkg="pkg1a"
+    type="recu_redux.py"
+  />
+</launch>

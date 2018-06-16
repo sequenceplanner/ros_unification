@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <node name="agv_alvar_smaster" pkg="unification_roscontrol" type="agv_alvar_smaster.py">
+  </node>
+  <node name="mir_mode_smaster" pkg="unification_roscontrol" type="mir_mode_smaster.py">
+  </node>
+  <node name="mir_pose_smaster" pkg="unification_roscontrol" type="mir_pose_smaster.py">
+  </node>
+  <node name="moveit_smaster" pkg="unification_roscontrol" type="moveit_smaster.py">
+  </node>
+  <node name="ur_joint_pose_smaster" pkg="unification_roscontrol" type="ur_joint_pose_smaster.py">
+  </node>
+  <node name="ur_mode_smaster" pkg="unification_roscontrol" type="ur_mode_smaster.py">
+  </node>
+  <node name="ur_tcp_pose_smaster" pkg="unification_roscontrol" type="ur_tcp_pose_smaster.py">
+  </node>
+  <node name="ur_tcp_pose_smaster_helper" pkg="unification_roscontrol" type="ur_tcp_pose_smaster_helper.py">
+  </node>
+  
+
+</launch>

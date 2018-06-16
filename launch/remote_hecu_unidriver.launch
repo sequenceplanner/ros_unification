@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<launch>
+  <machine
+    name="PI_6"
+    address="192.168.1.13"
+    user="peter"
+    password="atalante"
+    env-loader="/home/peter/catkin_ws/src/remoteenv.sh"
+  />
+  
+  <!-- HECU Unidriver -->
+  <node
+    machine="PI_1"
+    name="hecu"
+    pkg="pkg6a"
+    type="hecu_redux.py"
+  />
+</launch>
