@@ -32,14 +32,15 @@ class ur_tcp_pose_smaster():
         self.ur_tcp_pose_to_unidriver_publisher = rospy.Publisher('unification_roscontrol/ur_tcp_pose_smaster_to_unidriver', String, queue_size=10)
         self.urScriptPublisher = rospy.Publisher("/ur_driver/URScript", String, queue_size=10)
 
+        self.z = 0
         self.isclose_tolerance = 0.005
+        self.go_to_tcp_pose_prev = ""
 
         # Unification TCP Poses
         self.tcp_names = ['x', 'y', 'z', 'rx', 'ry', 'rz']
-
-        self.PreAttachAtlasCloseTCPPose = []
-        self.AttachAtlasTCPPose = []
-        self.PreAttachLFToolCloseTCPPose = []
+        self.PreAttachAtlasCloseTCPPose = [0, 0, 0, 0, 0, 0]
+        self.AttachAtlasTCPPose = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
+        self.PreAttachLFToolCloseTCPPose = [0.4, 0.4, 0.4, 0.4, 0.4, 0.4]
         self.AttachLFToolTCPPose = []
         self.PreAttachOFToolCloseTCPPose = []
         self.AttachOFToolTCPPose = []
@@ -73,7 +74,9 @@ class ur_tcp_pose_smaster():
 
         while not rospy.is_shutdown():        
     
-        self.tcp_rate.sleep()
+            self.ur_tcp_pose_to_unidriver_publisher.publish(self.ur_tcp_pose_state)
+
+            self.tcp_rate.sleep()
         rospy.spin()
 
 
@@ -214,19 +217,19 @@ class ur_tcp_pose_smaster():
 
         for pose in [self.PreAttachAtlasCloseTCPPose, 
             self.AttachAtlasTCPPose,
-            self.PreAttachLFToolCloseTCPPose,
-            self.AttachLFToolTCPPose,
-            self.PreAttachOFToolCloseTCPPose,
-            self.AttachOFToolTCPPose,
-            self.OFToolFrame1TCPPose,
-            self.OFToolFrame2TCPPose,
-            self.OFToolFrame3TCPPose
-            self.FindEngineRight2TCPPose,
-            self.FindEngineLeft2TCPPose,
-            self.FindEngineMid2TCPPose,
-            self.FindEngineRight3TCPPose,
-            self.FindEngineLeft3TCPPose,
-            self.FindEngineMid3TCPPose]:
+            self.PreAttachLFToolCloseTCPPose]:
+            #self.AttachLFToolTCPPose,
+            #self.PreAttachOFToolCloseTCPPose,
+            #self.AttachOFToolTCPPose,
+            #self.OFToolFrame1TCPPose,
+            #self.OFToolFrame2TCPPose,
+            #self.OFToolFrame3TCPPose,
+            #self.FindEngineRight2TCPPose,
+            #self.FindEngineLeft2TCPPose,
+            #self.FindEngineMid2TCPPose,
+            #self.FindEngineRight3TCPPose,
+            #self.FindEngineLeft3TCPPose,
+            #self.FindEngineMid3TCPPose]:
 
             if  numpy.isclose(self.tcp_x, pose[0], self.isclose_tolerance) and\
                 numpy.isclose(self.tcp_y, pose[1], self.isclose_tolerance) and\
