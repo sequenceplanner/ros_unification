@@ -38,12 +38,14 @@ class ur_tcp_pose_smaster():
 
         # Unification TCP Poses
         self.tcp_names = ['x', 'y', 'z', 'rx', 'ry', 'rz']
-        self.PreAttachAtlasCloseTCPPose = [0, 0, 0, 0, 0, 0]
-        self.AttachAtlasTCPPose = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
-        self.PreAttachLFToolCloseTCPPose = [0.4, 0.4, 0.4, 0.4, 0.4, 0.4]
-        self.AttachLFToolTCPPose = []
-        self.PreAttachOFToolCloseTCPPose = []
-        self.AttachOFToolTCPPose = []
+        self.PreAttachAtlasCloseTCPPose = [-0.901997967467, -0.236302257323, -0.226224204162, -1.15310323757, -1.11135086384, 1.28307171925]
+        self.AttachAtlasTCPPose = [-0.921767439662, -0.236338952229, -0.226284419763, -1.37396540261, -0.916783711665, 1.56642626229]
+
+        self.PreAttachLFToolCloseTCPPose = [-0.314196796263, -0.460490185045, -0.307773304476, 1.49509891331, 0.991289183192, 1.49449508332]
+        self.AttachLFToolTCPPose = [-0.301017571922, -0.462295211687, -0.307756046838, 1.50210590005, 1.00838306356, 1.49525355553]
+
+        self.PreAttachOFToolCloseTCPPose = [-0.244211570094, -0.30790338356, -0.319628394111, -0.952316296739, 1.36148005676, -0.930494165084]
+        self.AttachOFToolTCPPose = [-0.230853346808, -0.308361964477, -0.319622026614, -0.970232449125, 1.37146474959, -0.915124538019]
         self.OFToolFrame1TCPPose = []
         self.OFToolFrame2TCPPose = []
         self.OFToolFrame3TCPPose = []

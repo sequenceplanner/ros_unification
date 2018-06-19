@@ -40,6 +40,9 @@ class ur_joint_pose_smaster():
         # Unification JOINT Poses
         self.joint_names = ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
         self.HomeJOINTPose = [0.0, 0.0, 1.5707963705062866, 1.5707963705062866, -1.570796314870016, 0.0]
+        self.PreAttachAtlasFarJOINTPose = [0.08005275577306747, -0.09790021577943975, 1.3764376640319824, 1.7152074575424194, -1.6239331404315394, 0.36349916458129883]
+        self.PreAttachLFToolFarJOINTPose = [0.48709583282470703, -0.4043362776385706, 1.8112993240356445, -1.4140384832965296, -1.0778668562518519, 0.41233524680137634]
+        self.PreAttachOFToolFarJOINTPose = [0.30180624127388, -0.37626773515810186, 2.060617446899414, -1.704867188130514, -1.2735651175128382, 0.41501858830451965]
 
         self.joint_rate = rospy.Rate(10)
 
@@ -80,6 +83,10 @@ class ur_joint_pose_smaster():
             self.go_to_joint_pose_prev = "HomeJOINT"
             self.HomeJOINT()
 
+        elif self.go_to_joint_pose == "ResetJOINT" and self.go_to_joint_pose_prev != "ResetJOINT":
+            self.go_to_joint_pose_prev = "ResetJOINT"
+            self.ResetJOINT()
+
         elif self.go_to_joint_pose == "PreAttachAtlasFarJOINT" and self.go_to_joint_pose_prev != "PreAttachAtlasFarJOINT":
             self.go_to_joint_pose_prev = "PreAttachAtlasFarJOINT"
             self.PreAttachAtlasFarJOINT()
@@ -115,7 +122,18 @@ class ur_joint_pose_smaster():
     def HomeJOINT(self):
         self.moveJ(self.HomeJOINTPose, a=1.5, v=5, t=3, r=0)
 
+    def ResetJOINT(self):
+        self.moveJ(self.ResetJOINTPose, a=1.5, v=5, t=3, r=0)
+
+    def PreAttachLFToolFarJOINT(self):
+        self.moveJ(self.PreAttachLFToolFarJOINTPose, a=1.5, v=5, t=3, r=0)
+
+    def PreAttachOFToolFarJOINT(self):
+        self.moveJ(self.PreAttachOFToolFarJOINTPose, a=1.5, v=5, t=3, r=0)
+
     def jointCallback(self, joint):
+
+        self.ResetJOINTPose = [joint.position[0], joint.position[1], joint.position[2], joint.position[3], joint.position[4], joint.position[5]]
 
         for pose in [self.HomeJOINTPose]:
 

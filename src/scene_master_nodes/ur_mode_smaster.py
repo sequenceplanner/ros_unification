@@ -31,7 +31,7 @@ class ur_mode_smaster():
     
     def robot_safetymode_reader(self):
         def robot_safetymode_reader_callback():
-            HOST = "0.0.0.0"
+            HOST = "192.168.1.14"
             PORT = 29999 
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect((HOST, PORT))
