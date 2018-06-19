@@ -106,71 +106,7 @@ class ur_pose_unidriver():
                 URPoseUniToSP.ur_pose_unidriver_got_msg_from_moveit_smaster = False
                 URPoseUniToSP.planning = False
 
-        '''
-        while not rospy.is_shutdown():
-            try:
-                rospy.Subscriber("/unification_roscontrol/ur_pose_sp_to_unidriver", URPoseSPToUni, self.ur_pose_sp_to_unidriver_callback)
 
-                if time.time() < self.ur_pose_sp_to_unidriver_timeout:
-                    URPoseUniToSP.ur_pose_unidriver_got_msg_from_sp = self.ur_pose_unidriver_got_msg_from_sp
-                    URPoseUniToSP.got_cmd_ref_pos = self.got_cmd_ref_pos
-                    URPoseUniToSP.got_cmd_should_plan = self.got_cmd_should_plan
-                else:
-                    URPoseUniToSP.ur_pose_unidriver_got_msg_from_sp = False
-                    URPoseUniToSP.got_cmd_ref_pos = "_"
-                    URPoseUniToSP.got_cmd_should_plan = False
-
-            except rospy.ROSInterruptException:
-                pass
-
-
-
-            try:
-                rospy.Subscriber("/unification_roscontrol/ur_tcp_pose_smaster_to_unidriver", String, self.ur_tcp_pose_smaster_to_unidriver_callback)
-
-                if time.time() < self.ur_tcp_pose_smaster_to_unidriver_timeout:
-                    URPoseUniToSP.ur_pose_unidriver_got_msg_from_ur_tcp_pose_smaster = True
-                
-                else:
-                    URPoseUniToSP.ur_pose_unidriver_got_msg_from_ur_tcp_pose_smaster = False
-                    self.act_tcp_pos = "_"
-
-            except rospy.ROSInterruptException:
-                pass
-
-            
-            try:
-                rospy.Subscriber("/unification_roscontrol/ur_joint_pose_smaster_to_unidriver", URJointSmasterToUni, self.ur_joint_pose_smaster_to_unidriver_callback)
-
-                if time.time() < self.ur_joint_pose_smaster_to_unidriver_timeout:
-                    URPoseUniToSP.ur_pose_unidriver_got_msg_from_ur_joint_pose_smaster = True
-                    URPoseUniToSP.executing = self.executing
-                    
-
-                else:
-                    URPoseUniToSP.ur_pose_unidriver_got_msg_from_ur_joint_pose_smaster = False
-                    URPoseUniToSP.executing = False
-                    self.act_joint_pos = "_"
-                
-            except rospy.ROSInterruptException:
-                pass
-
-            
-            try:
-                rospy.Subscriber("/unification_roscontrol/moveit_smaster_to_unidriver", String, self.moveit_smaster_to_unidriver_callback)
-
-                if time.time() < self.moveit_smaster_to_unidriver_timeout:
-                    URPoseUniToSP.ur_pose_unidriver_got_msg_from_moveit_smaster = True
-                    URPoseUniToSP.planning = self.planning
-
-                else:
-                    URPoseUniToSP.ur_pose_unidriver_got_msg_from_moveit_smaster = False
-                    URPoseUniToSP.planning = False
-                
-            except rospy.ROSInterruptException:
-                pass
-
-        '''
 
             self.test()
             URPoseUniToSP.act_pos = self.act_pos
