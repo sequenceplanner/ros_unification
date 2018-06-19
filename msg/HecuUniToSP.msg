@@ -1,4 +1,2 @@
-bool hecu_unidriver_got_msg_from_hecu
-bool hecu_alive
 bool lf_tool_home
 bool filter_tool_home

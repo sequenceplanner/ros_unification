@@ -9,6 +9,7 @@ bool got_cmd_activate_lift
 bool tool_is_idle
 bool tool_is_running_forward
 bool tool_is_running_reverse
+bool tool_is_in_alarm
 bool positioned_at_home_station
 bool operating_position
 bool pre_home_position
