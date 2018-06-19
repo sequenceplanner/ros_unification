@@ -12,8 +12,8 @@
   <!-- RECU Unidriver -->
   <node
     machine="PI_1"
-    name="recu"
-    pkg="pkg1a"
-    type="recu_redux.py"
+    name="recu_unidriver"
+    pkg="unification_roscontrol"
+    type="recu_unidriver.py"
   />
 </launch>
