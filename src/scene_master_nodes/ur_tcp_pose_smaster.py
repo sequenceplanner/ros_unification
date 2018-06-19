@@ -213,9 +213,9 @@ class ur_tcp_pose_smaster():
         self.tcp_x = data.x
         self.tcp_y = data.y
         self.tcp_z = data.z
-        self.tcp_r = data.r
-        self.tcp_p = data.p
-        self.tcp_w = data.w
+        self.tcp_rx = data.rx
+        self.tcp_ry = data.ry
+        self.tcp_rz = data.rz
 
         for pose in [self.PreAttachAtlasCloseTCPPose, 
             self.AttachAtlasTCPPose,
@@ -236,9 +236,9 @@ class ur_tcp_pose_smaster():
             if  numpy.isclose(self.tcp_x, pose[0], self.isclose_tolerance) and\
                 numpy.isclose(self.tcp_y, pose[1], self.isclose_tolerance) and\
                 numpy.isclose(self.tcp_z, pose[2], self.isclose_tolerance) and\
-                numpy.isclose(self.tcp_r, pose[3], self.isclose_tolerance) and\
-                numpy.isclose(self.tcp_p, pose[4], self.isclose_tolerance) and\
-                numpy.isclose(self.tcp_w, pose[5], self.isclose_tolerance):
+                numpy.isclose(self.tcp_rx, pose[3], self.isclose_tolerance) and\
+                numpy.isclose(self.tcp_ry, pose[4], self.isclose_tolerance) and\
+                numpy.isclose(self.tcp_rz, pose[5], self.isclose_tolerance):
                 self.ur_tcp_pose_name = pose
             
             else:
