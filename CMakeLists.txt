@@ -51,19 +51,27 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   AecuSPToUni.msg
+  AecuSPToUni2.msg
   AecuUniToSP.msg
+  AecuUniToSP2.msg
   AGVAlvarUniToSP.msg
   HecuUniToSP.msg
+  HecuUniToSP2.msg
   MiRModeSPToUni.msg
   MiRModeUniToSP.msg
   MiRPoseSPToUni.msg
   MiRPoseUniToSP.msg
   RecuSPToUni.msg
+  RecuSPToUni2.msg
   RecuUniToSP.msg
+  RecuUniToSP2.msg
   URModeSPToUni.msg
   URModeUniToSP.msg
   URPoseSPToUni.msg
+  URPoseSPToUni2.msg
   URPoseUniToSP.msg
+  URJointSmasterToUni.msg
+  URTCP.msg
 )
 
 ## Generate services in the 'srv' folder
