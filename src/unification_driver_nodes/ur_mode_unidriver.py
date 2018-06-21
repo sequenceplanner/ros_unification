@@ -14,6 +14,7 @@ import struct
 from unification_roscontrol.msg import URModeSPToUni
 from unification_roscontrol.msg import URModeUniToSP
 from std_msgs.msg import String
+import socket
 import time
 
 
@@ -44,9 +45,13 @@ class ur_mode_unidriver():
         self.ur_disengage_safeguard = False
         self.ur_disengage_protective = False
 
+        # subscribers
+        rospy.Subscriber("/unification_roscontrol/ur_mode_sp_to_unidriver", URModeSPToUni, self.ur_mode_sp_to_unidriver_callback)
+        rospy.Subscriber("/unification_roscontrol/ur_mode_smaster_to_unidriver", String, self.ur_mode_smaster_to_unidriver_callback)
+
         # publishers
-        self.ur_mode_unidriver_to_smaster_publisher = rospy.Publisher('/unification_roscontrol/ur_mode_unidriver_to_smaster', String, queue_size=10)
-        self.ur_mode_unidriver_to_sp_publisher = rospy.Publisher('/unification_roscontrol/ur_mode_unidriver_to_sp', URModeUniToSP, queue_size=10)
+        self.ur_mode_unidriver_to_smaster_publisher = rospy.Publisher('unification_roscontrol/ur_mode_unidriver_to_smaster', String, queue_size=10)
+        self.ur_mode_unidriver_to_sp_publisher = rospy.Publisher('unification_roscontrol/ur_mode_unidriver_to_sp', URModeUniToSP, queue_size=10)
         
         rospy.sleep(1)
 
@@ -63,53 +68,47 @@ class ur_mode_unidriver():
         self.ur_mode_state = URModeUniToSP()
 
         while not rospy.is_shutdown():
-            try:
-                rospy.Subscriber("/unification_roscontrol/ur_mode_sp_to_unidriver", URModeSPToUni, self.ur_mode_sp_to_unidriver_callback)
+            
+            if time.time() < self.ur_mode_sp_to_unidriver_timeout:
+                URModeUniToSP.ur_mode_unidriver_got_msg_from_sp = self.ur_mode_unidriver_got_msg_from_sp
+                URModeUniToSP.got_cmd_ur_activate_safeguard = self.ur_activate_safeguard
+                URModeUniToSP.got_cmd_ur_disengage_safeguard = self.ur_disengage_safeguard
+                URModeUniToSP.got_cmd_ur_disengage_protective = self.ur_disengage_protective
+            else:
+                URModeUniToSP.ur_mode_unidriver_got_msg_from_sp = False
+                URModeUniToSP.got_cmd_ur_activate_safeguard = False
+                URModeUniToSP.got_cmd_ur_disengage_safeguard = False
+                URModeUniToSP.got_cmd_ur_disengage_protective = False
+                self.ur_activate_safeguard = False
+                self.ur_disengage_safeguard = False
+                self.ur_disengage_protective = False
+            
 
-                if time.time() < self.ur_mode_sp_to_unidriver_timeout:
-                    URModeUniToSP.ur_mode_unidriver_got_msg_from_sp = self.ur_mode_unidriver_got_msg_from_sp
-                    URModeUniToSP.got_cmd_ur_activate_safeguard = self.ur_activate_safeguard
-                    URModeUniToSP.got_cmd_ur_disengage_safeguard = self.ur_disengage_safeguard
-                    URModeUniToSP.got_cmd_ur_disengage_protective = self.ur_disengage_protective
-                else:
-                    URModeUniToSP.ur_mode_unidriver_got_msg_from_sp = False
-                    URModeUniToSP.got_cmd_ur_activate_safeguard = False
-                    URModeUniToSP.got_cmd_ur_disengage_safeguard = False
-                    URModeUniToSP.got_cmd_ur_disengage_protective = False
 
-            except rospy.ROSInterruptException:
-                pass
+            if time.time() < self.ur_mode_smaster_to_unidriver_timeout:
+                URModeUniToSP.ur_mode_unidriver_got_msg_from_ur_mode_smaster = self.ur_mode_unidriver_got_msg_from_ur_mode_smaster
+                URModeUniToSP.normal = self.normal
+                URModeUniToSP.reduced = self.reduced
+                URModeUniToSP.protective_stop = self.protective_stop
+                URModeUniToSP.recovery = self.recovery
+                URModeUniToSP.safeguard_stop = self.safeguard_stop
+                URModeUniToSP.system_emergency_stop = self.system_emergency_stop
+                URModeUniToSP.robot_emergency_stop = self.robot_emergency_stop
+                URModeUniToSP.violation = self.violation
+                URModeUniToSP.fault = self.fault
 
-
-            try:
-                rospy.Subscriber("/unification_roscontrol/ur_mode_smaster_to_unidriver", String, self.ur_mode_smaster_to_unidriver_callback)
-
-                if time.time() < self.ur_mode_smaster_to_unidriver_timeout:
-                    URModeUniToSP.ur_mode_unidriver_got_msg_from_ur_mode_smaster = self.ur_mode_unidriver_got_msg_from_ur_mode_smaster
-                    URModeUniToSP.normal = self.normal
-                    URModeUniToSP.reduced = self.reduced
-                    URModeUniToSP.protective_stop = self.protective_stop
-                    URModeUniToSP.recovery = self.recovery
-                    URModeUniToSP.safeguard_stop = self.safeguard_stop
-                    URModeUniToSP.system_emergency_stop = self.system_emergency_stop
-                    URModeUniToSP.robot_emergency_stop = self.robot_emergency_stop
-                    URModeUniToSP.violation = self.violation
-                    URModeUniToSP.fault = self.fault
-
-                else:
-                    URModeUniToSP.ur_mode_unidriver_got_msg_from_ur_mode_smaster = False
-                    URModeUniToSP.normal = False
-                    URModeUniToSP.reduced = False
-                    URModeUniToSP.protective_stop = False
-                    URModeUniToSP.recovery = False
-                    URModeUniToSP.safeguard_stop = False
-                    URModeUniToSP.system_emergency_stop = False
-                    URModeUniToSP.robot_emergency_stop = False
-                    URModeUniToSP.violation = False
-                    URModeUniToSP.fault = False
+            else:
+                URModeUniToSP.ur_mode_unidriver_got_msg_from_ur_mode_smaster = False
+                URModeUniToSP.normal = False
+                URModeUniToSP.reduced = False
+                URModeUniToSP.protective_stop = False
+                URModeUniToSP.recovery = False
+                URModeUniToSP.safeguard_stop = False
+                URModeUniToSP.system_emergency_stop = False
+                URModeUniToSP.robot_emergency_stop = False
+                URModeUniToSP.violation = False
+                URModeUniToSP.fault = False
                 
-            except rospy.ROSInterruptException:
-                pass
 
             self.ur_mode_unidriver_to_sp_publisher.publish(self.ur_mode_state)
             self.main_rate.sleep()
@@ -124,7 +123,12 @@ class ur_mode_unidriver():
         self.ur_mode_unidriver_to_smaster_publisher.publish("disengage_safeguard")
 
     def disengage_protective(self):
-        self.ur_mode_unidriver_to_smaster_publisher.publish("disengage_protective")
+        HOST = "192.168.1.14"
+        PORT = 29999 
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((HOST, PORT))
+        s.send ("unlock protective stop" + "\n")
+        s.close()  
 
 
     def ur_mode_sp_to_unidriver_callback(self, ur_mode_cmd):
@@ -146,9 +150,9 @@ class ur_mode_unidriver():
             self.ur_disengage_protective == False:
             self.disengage_safeguard()
 
-        elif self.ur_activate_safeguard == True and\
+        elif self.ur_activate_safeguard == False and\
             self.ur_disengage_safeguard == False and\
-            self.ur_disengage_protective == False:
+            self.ur_disengage_protective == True:
             self.disengage_protective()
 
         else:
@@ -159,7 +163,7 @@ class ur_mode_unidriver():
         self.ur_mode_smaster_to_unidriver_timeout = time.time() + 2
         self.ur_mode_unidriver_got_msg_from_ur_mode_smaster = True
 
-        if ur_mode.data == "normal":
+        if "NORMAL" in ur_mode.data:
             self.normal = True
             self.reduced = False
             self.protective_stop = False
@@ -170,7 +174,7 @@ class ur_mode_unidriver():
             self.violation = False
             self.fault = False
             
-        elif ur_mode.data == "reeduced":
+        elif "REDUCED" in ur_mode.data:
             self.normal = False
             self.reduced = True
             self.protective_stop = False
@@ -181,7 +185,7 @@ class ur_mode_unidriver():
             self.violation = False
             self.fault = False
 
-        elif ur_mode.data == "protective_stop":
+        elif "PROTECTIVE" in ur_mode.data:
             self.normal = False
             self.reduced = False
             self.protective_stop = True
@@ -192,7 +196,7 @@ class ur_mode_unidriver():
             self.violation = False
             self.fault = False
 
-        elif ur_mode.data == "recovery":
+        elif "RECOVERY" in ur_mode.data:
             self.normal = False
             self.reduced = False
             self.protective_stop = False
@@ -203,7 +207,7 @@ class ur_mode_unidriver():
             self.violation = False
             self.fault = False
 
-        elif ur_mode.data == "safeguard_stop":
+        elif "SAFEGUARD" in ur_mode.data ==:
             self.normal = False
             self.reduced = False
             self.protective_stop = False

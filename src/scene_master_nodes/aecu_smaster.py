@@ -17,18 +17,18 @@ import rospy
 import roslib
 import struct
 from std_msgs.msg import UInt16
-from unification_roscontrol.msg import AecuSPToUni
-from unification_roscontrol.msg import AecuUniToSP
-import GPIOEmu as GPIO
-#import RPi.GPIO as GPIO
+from unification_roscontrol.msg import AecuSPToUni2
+from unification_roscontrol.msg import AecuUniToSP2
+#import GPIOEmu as GPIO
+import RPi.GPIO as GPIO
 import time
 
 
-class aecu_unidriver():
+class aecu_smaster():
 
     def __init__(self):
         
-        rospy.init_node('aecu_unidriver', anonymous=False)
+        rospy.init_node('aecu_smaster', anonymous=False)
 
         self.GPO1 = 4
         self.GPO2 = 17
@@ -63,8 +63,6 @@ class aecu_unidriver():
         GPIO.output(self.GPO3, False)
         GPIO.output(self.GPO4, False)
 
-        self.sp_to_aecu_unidriver_timeout = 100
-    
         # state
         self.tool_is_idle = False
         self.tool_is_running_forward = False
@@ -76,7 +74,6 @@ class aecu_unidriver():
         self.programmed_torque_reached = False
 
         # command
-        self.aecu_unidriver_got_msg_from_sp = False
         self.set_tool_idle = False
         self.run_tool_forward = False
         self.run_tool_in_reverse = False
@@ -85,10 +82,10 @@ class aecu_unidriver():
         self.activate_lift = False
 
         # subscribers
-        rospy.Subscriber("/unification_roscontrol/aecu_sp_to_unidriver", AecuSPToUni, self.sp_to_aecu_unidriver_callback)
+        rospy.Subscriber("/unification_roscontrol/aecu_unidriver_to_smaster", AecuSPToUni2, self.unidriver_to_smaster_callback)
 
         # publishers
-        self.aecu_to_sp_publisher = rospy.Publisher('/unification_roscontrol/aecu_unidriver_to_sp', AecuUniToSP, queue_size=10)
+        self.aecu_to_sp_publisher = rospy.Publisher('/unification_roscontrol/aecu_unidriver_to_sp', AecuUniToSP2, queue_size=10)
         
         rospy.sleep(1)
 
@@ -100,36 +97,24 @@ class aecu_unidriver():
 
     def main(self):
 
-        self.aecu_state = AecuUniToSP()
+        self.aecu_state = AecuUniToSP2()
 
         while not rospy.is_shutdown():
 
-            if time.time() < self.sp_to_aecu_unidriver_timeout:
-                AecuUniToSP.aecu_unidriver_got_msg_from_sp = self.aecu_unidriver_got_msg_from_sp
-                AecuUniToSP.got_cmd_set_tool_idle = self.set_tool_idle
-                AecuUniToSP.got_cmd_run_tool_forward = self.run_tool_forward
-                AecuUniToSP.got_cmd_run_tool_in_reverse = self.run_tool_in_reverse
-                AecuUniToSP.got_cmd_inhibit_all_run_also_manual = self.inhibit_all_run_also_manual
-                AecuUniToSP.got_cmd_activate_unload = self.activate_unload
-                AecuUniToSP.got_cmd_activate_lift = self.activate_lift
-            else:
-                AecuUniToSP.aecu_unidriver_got_msg_from_sp = False
-                AecuUniToSP.got_cmd_set_tool_idle = False
-                AecuUniToSP.got_cmd_run_tool_forward = False
-                AecuUniToSP.got_cmd_run_tool_in_reverse = False
-                AecuUniToSP.got_cmd_inhibit_all_run_also_manual = False
-                AecuUniToSP.got_cmd_activate_unload = False
-                AecuUniToSP.got_cmd_activate_lift = False
-
-
-            AecuUniToSP.tool_is_idle = self.tool_is_idle
-            AecuUniToSP.tool_is_running_forward = self.tool_is_running_forward
-            AecuUniToSP.tool_is_runiing_reverse = self.tool_is_running_reverse
-            AecuUniToSP.positioned_at_home_station = self.positioned_at_home_station
-            AecuUniToSP.operating_position = self.operating_position
-            AecuUniToSP.pre_home_position = self.pre_home_position
-            AecuUniToSP.unclear_position = self.unclear_position
-            AecuUniToSP.programmed_torque_reached = self.programmed_torque_reached
+            AecuUniToSP2.got_cmd_set_tool_idle = self.set_tool_idle
+            AecuUniToSP2.got_cmd_run_tool_forward = self.run_tool_forward
+            AecuUniToSP2.got_cmd_run_tool_in_reverse = self.run_tool_in_reverse
+            AecuUniToSP2.got_cmd_inhibit_all_run_also_manual = self.inhibit_all_run_also_manual
+            AecuUniToSP2.got_cmd_activate_unload = self.activate_unload
+            AecuUniToSP2.got_cmd_activate_lift = self.activate_lift
+            AecuUniToSP2.tool_is_idle = self.tool_is_idle
+            AecuUniToSP2.tool_is_running_forward = self.tool_is_running_forward
+            AecuUniToSP2.tool_is_runiing_reverse = self.tool_is_running_reverse
+            AecuUniToSP2.positioned_at_home_station = self.positioned_at_home_station
+            AecuUniToSP2.operating_position = self.operating_position
+            AecuUniToSP2.pre_home_position = self.pre_home_position
+            AecuUniToSP2.unclear_position = self.unclear_position
+            AecuUniToSP2.programmed_torque_reached = self.programmed_torque_reached
 
             
             # Read manual commands
@@ -223,7 +208,7 @@ class aecu_unidriver():
         # What outputs?
         pass
 
-    def aecu_disactivate_unload(self):
+    def aecu_disable_unload(self):
         # What outputs?
         pass
 
@@ -231,15 +216,13 @@ class aecu_unidriver():
         # What outputs?
         pass
 
-    def aecu_disactivate_lift(self):
+    def aecu_disable_lift(self):
         # What outputs?
         pass
 
 
-    def sp_to_aecu_unidriver_callback(self, aecu_cmd):
+    def unidriver_to_smaster_callback(self, aecu_cmd):
 
-        self.sp_to_aecu_unidriver_timeout = time.time() + 2
-        self.aecu_unidriver_got_msg_from_sp = True
         self.set_tool_idle = aecu_cmd.set_tool_idle
         self.run_tool_forward = aecu_cmd.run_tool_forward
         self.run_tool_in_reverse = aecu_cmd.run_tool_in_reverse
@@ -278,17 +261,17 @@ class aecu_unidriver():
         if self.activate_lift == True:
             self.aecu_activate_lift()
         else:
-            self.disable_lift()
+            self.aecu_disable_lift()
 
         
         if self.activate_unload == True:
             self.aecu_activate_unload()
         else:
-            self.disable_unload()
+            self.aecu_disable_unload()
 
 
 if __name__ == '__main__':
     try:
-        aecu_unidriver()
+        aecu_smaster()
     except rospy.ROSInterruptException:
         pass

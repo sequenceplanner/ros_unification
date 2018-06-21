@@ -12,11 +12,13 @@
   </node>
   <node name="agv_alvar_unidriver" pkg="unification_roscontrol" type="agv_alvar_unidriver.py">
   </node>
+   <node name="recu_unidriver" pkg="unification_roscontrol" type="recu_unidriver.py">
+  </node>
+   <node name="aecu_unidriver" pkg="unification_roscontrol" type="aecu_unidriver.py">
+  </node>
+   <node name="hecu_unidriver" pkg="unification_roscontrol" type="hecu_unidriver.py">
+  </node>
 
-  <include file="$(find unification_roscontrol)/launch/remote_recu_unidriver.launch" />
-
-  <include file="$(find unification_roscontrol)/launch/remote_aecu_unidriver.launch" />
-
-  <include file="$(find unification_roscontrol)/launch/remote_hecu_unidriver.launch" />
+  
   
 </launch>

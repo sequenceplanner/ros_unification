@@ -16,11 +16,15 @@ import threading
 from std_msgs.msg import String
 import time
 
+#HOST = "192.168.1.14"
+#DASHBOARD_SERVER = 29999
+
 class ur_mode_smaster():
 
     def __init__(self):
         
         rospy.init_node('ur_mode_smaster', anonymous=False)
+
         self.scene_master_ur_safetymode_publisher = rospy.Publisher('unification_roscontrol/ur_mode_smaster_to_unidriver', String, queue_size=200)
         
         self.tcp_rate = rospy.Rate(10)
@@ -49,6 +53,7 @@ class ur_mode_smaster():
         t7.start()
 
         rospy.spin()
+
         
 if __name__ == '__main__':
     try:

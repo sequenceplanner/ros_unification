@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------------
 # authors, description, version
 #----------------------------------------------------------------------------------------
-    # Endre Eres, Carlos Gil Camacho
+    # Endre Eres
     # UR TCP Pose Scene Master Helper
     # V.0.3.0.
 #----------------------------------------------------------------------------------------
@@ -13,7 +13,6 @@ import roslib
 import socket
 from std_msgs.msg import String
 from geometry_msgs.msg import Point
-from emats_ur_driver.msg import TCPState
 import threading
 from unification_roscontrol.msg import URTCP
 import tf
@@ -122,10 +121,6 @@ class ur_tcp_pose_smaster_helper():
         rospy.spin()
 
 
-    def radToRotVec(self, r, p, y):
-
-        
-        return R
 
 
 if __name__ == '__main__':

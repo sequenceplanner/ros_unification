@@ -31,7 +31,7 @@ class ur_joint_pose_smaster():
         self.ur_joint_pose_to_unidriver_publisher = rospy.Publisher('unification_roscontrol/ur_joint_pose_smaster_to_unidriver', URJointSmasterToUni, queue_size=10)
         self.urScriptPublisher = rospy.Publisher("/ur_driver/URScript", String, queue_size=10)
     
-        self.isclose_tolerance = 0.005
+        self.isclose_tolerance = 0.5
         self.go_to_joint_pose_prev = ""
 
         self.ur_joint_pose = ""
@@ -39,12 +39,15 @@ class ur_joint_pose_smaster():
 
         # Unification JOINT Poses
         self.joint_names = ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
-        self.HomeJOINTPose = [0.0, 0.0, 1.5707963705062866, 1.5707963705062866, -1.570796314870016, 0.0]
+        self.HomeJOINTPose = [0, 0.000000000, 1.5707963705062866, 1.5707963705062866, -1.570796314870016, 0.000000000000]
         self.PreAttachAtlasFarJOINTPose = [0.08005275577306747, -0.09790021577943975, 1.3764376640319824, 1.7152074575424194, -1.6239331404315394, 0.36349916458129883]
         self.PreAttachLFToolFarJOINTPose = [0.48709583282470703, -0.4043362776385706, 1.8112993240356445, -1.4140384832965296, -1.0778668562518519, 0.41233524680137634]
         self.PreAttachOFToolFarJOINTPose = [0.30180624127388, -0.37626773515810186, 2.060617446899414, -1.704867188130514, -1.2735651175128382, 0.41501858830451965]
+        self.AboveEngineJOINTPose = [0.08036433905363083, -1.4317691961871546, 2.296618700027466, 2.2488040924072266, -1.664436165486471, 0.36170265078544617]
 
-        self.joint_rate = rospy.Rate(10)
+        self.joint_rate = rospy.Rate(125)
+
+        rospy.sleep(2)
 
         self.main()
 
@@ -83,9 +86,13 @@ class ur_joint_pose_smaster():
             self.go_to_joint_pose_prev = "HomeJOINT"
             self.HomeJOINT()
 
-        elif self.go_to_joint_pose == "ResetJOINT" and self.go_to_joint_pose_prev != "ResetJOINT":
-            self.go_to_joint_pose_prev = "ResetJOINT"
+        elif self.go_to_joint_pose == "reset" and self.go_to_joint_pose_prev != "reset":
+            self.go_to_joint_pose_prev = "reset"
             self.ResetJOINT()
+
+        elif self.go_to_joint_pose == "AboveEngineJOINT" and self.go_to_joint_pose_prev != "AboveEngineJOINT":
+            self.go_to_joint_pose_prev = "AboveEngineJOINT"
+            self.AboveEngineJOINT()
 
         elif self.go_to_joint_pose == "PreAttachAtlasFarJOINT" and self.go_to_joint_pose_prev != "PreAttachAtlasFarJOINT":
             self.go_to_joint_pose_prev = "PreAttachAtlasFarJOINT"
@@ -125,6 +132,12 @@ class ur_joint_pose_smaster():
     def ResetJOINT(self):
         self.moveJ(self.ResetJOINTPose, a=1.5, v=5, t=3, r=0)
 
+    def AboveEngineJOINT(self):
+        self.moveJ(self.AboveEngineJOINTPose, a=1.5, v=5, t=3, r=0)
+
+    def PreAttachAtlasFarJOINT(self):
+        self.moveJ(self.PreAttachAtlasFarJOINTPose, a=1.5, v=5, t=3, r=0)
+
     def PreAttachLFToolFarJOINT(self):
         self.moveJ(self.PreAttachLFToolFarJOINTPose, a=1.5, v=5, t=3, r=0)
 
@@ -135,27 +148,47 @@ class ur_joint_pose_smaster():
 
         self.ResetJOINTPose = [joint.position[0], joint.position[1], joint.position[2], joint.position[3], joint.position[4], joint.position[5]]
 
-        for pose in [self.HomeJOINTPose]:
+        #print numpy.isclose(joint.position[0], self.HomeJOINTPose[0], self.isclose_tolerance)
+        #print joint.position[0]
 
-            if numpy.isclose(joint.position[0], pose[0], self.isclose_tolerance) and\
-                numpy.isclose(joint.position[1], pose[1], self.isclose_tolerance) and\
-                numpy.isclose(joint.position[2], pose[2], self.isclose_tolerance) and\
-                numpy.isclose(joint.position[3], pose[3], self.isclose_tolerance) and\
-                numpy.isclose(joint.position[4], pose[4], self.isclose_tolerance) and\
-                numpy.isclose(joint.position[5], pose[5], self.isclose_tolerance):
+        # maybe for pose in (pose1, pose2, pose3...)
+
+        self.ur_joint_pose_name = []
+
+        for pose in [self.HomeJOINTPose, 
+            self.PreAttachAtlasFarJOINTPose, 
+            self.PreAttachLFToolFarJOINTPose, 
+            self.PreAttachOFToolFarJOINTPose,
+            self.AboveEngineJOINTPose]:
+
+            if  abs((abs(joint.position[0]) - abs(pose[0]))) < 0.01 and\
+                abs((abs(joint.position[1]) - abs(pose[1]))) < 0.01 and\
+                abs((abs(joint.position[2]) - abs(pose[2]))) < 0.01 and\
+                abs((abs(joint.position[3]) - abs(pose[3]))) < 0.01 and\
+                abs((abs(joint.position[4]) - abs(pose[4]))) < 0.01 and\
+                abs((abs(joint.position[5]) - abs(pose[5]))) < 0.01:
                 self.ur_joint_pose_name = pose
-            
-            else:
-                self.ur_joint_pose_name = []
-                        
-                
-        if self.ur_joint_pose_name == self.HomeJOINTPose:
-            self.ur_joint_pose = "HomeJOINT"
         
-        else:
-            self.ur_joint_pose = "unknown"
+            if self.ur_joint_pose_name == self.HomeJOINTPose:
+                self.ur_joint_pose = "HomeJOINT"
+    
+            elif self.ur_joint_pose_name == self.PreAttachAtlasFarJOINTPose:
+                self.ur_joint_pose = "PreAttachAtlasFarJOINT"
+    
+            elif self.ur_joint_pose_name == self.PreAttachLFToolFarJOINTPose:
+                self.ur_joint_pose = "PreAttachLFToolFarJOINT"
+    
+            elif self.ur_joint_pose_name == self.PreAttachOFToolFarJOINTPose:
+                self.ur_joint_pose = "PreAttachOFToolFarJOINT"
+    
+            elif self.ur_joint_pose_name == self.AboveEngineJOINTPose:
+                self.ur_joint_pose = "AboveEngineJOINT"
+    
+            else:
+                self.ur_joint_pose = "unknown"
+    
 
-
+    
         if (joint.velocity[0] or joint.velocity[1] or joint.velocity[2] or joint.velocity[3] or joint.velocity[4] or joint.velocity[5] != 0):
             self.ur_executing = True
         else:

@@ -12,8 +12,8 @@
   <!-- RECU Unidriver -->
   <node
     machine="PI_1"
-    name="recu_unidriver"
+    name="recu_smaster"
     pkg="unification_roscontrol"
-    type="recu_unidriver.py"
+    type="recu_smaster.py"
   />
 </launch>

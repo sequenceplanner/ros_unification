@@ -12,8 +12,8 @@
   <!-- HECU Unidriver -->
   <node
     machine="PI_6"
-    name="hecu_unidriver"
+    name="hecu_smaster"
     pkg="unification_roscontrol"
-    type="hecu_unidriver.py"
+    type="hecu_smaster.py"
   />
 </launch>

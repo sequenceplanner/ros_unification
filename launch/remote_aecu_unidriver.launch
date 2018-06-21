@@ -12,8 +12,8 @@
   <!-- AECU Unidriver -->
   <node
     machine="PI_3"
-    name="aecu_unidriver"
+    name="aecu_smaster"
     pkg="unification_roscontrol"
-    type="aecu_unidriver.py"
+    type="aecu_smaster.py"
   />
 </launch>

@@ -155,6 +155,12 @@ class ur_pose_unidriver():
             self.got_cmd_ref_pos = ur_mode_cmd.ref_pos
             self.got_cmd_should_plan = ur_mode_cmd.should_plan
 
+        elif "reset" in ur_mode_cmd.ref_pos and ur_mode_cmd.should_plan == False:
+            self.ur_pose_unidriver_to_ur_tcp_pose_smaster_publisher.publish(ur_mode_cmd.ref_pos)
+            self.ur_pose_unidriver_to_ur_joint_pose_smaster_publisher.publish(ur_mode_cmd.ref_pos)
+            self.got_cmd_ref_pos = ur_mode_cmd.ref_pos
+            self.got_cmd_should_plan = ur_mode_cmd.should_plan
+
         elif ("TCP" in ur_mode_cmd.ref_pos or "JOINT" in ur_mode_cmd.ref_pos) and ur_mode_cmd.should_plan == True:
             self.ur_pose_unidriver_to_moveit_smaster_publisher.publish(ur_mode_cmd.ref_pos)
             self.got_cmd_ref_pos = ur_mode_cmd.ref_pos
