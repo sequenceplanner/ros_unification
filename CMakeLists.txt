@@ -71,6 +71,8 @@ add_message_files(
   URPoseSPToUni2.msg
   URPoseUniToSP.msg
   URJointSmasterToUni.msg
+  ExecutorToSP.msg
+  SPToExecutor.msg
   URTCP.msg
 )
 
