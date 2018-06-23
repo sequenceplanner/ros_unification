@@ -16,6 +16,7 @@ from geometry_msgs.msg import Point
 from geometry_msgs.msg import WrenchStamped
 from unification_roscontrol.msg import URTCP
 import numpy
+import sys
 import tf
 import time
 
@@ -40,12 +41,27 @@ class ur_tcp_pose_smaster():
         # Unification TCP Poses
         self.tcp_names = ['x', 'y', 'z', 'rx', 'ry', 'rz']
         self.ResetTCPPose = []
+
+        #----------------------------------------------------------------------------------------
+        # Force sensor engine positioning
+        #----------------------------------------------------------------------------------------
+        self.FindEngineRightDownTCPPose = [-0.476027542627, -0.560034757959, 1.02107340693, -1.57525004049, 0.299255540234, 0.364537901289]
+        self.FindEngineRightColideTCPPose = [-0.476111259039, -0.4, 1.02100659443, -1.57516026151, 0.299218018579, 0.364387736323]
+        self.FindEngineLeftDownTCPPose = [-0.870853950336, 0.153700134813, 1.00801072426, 1.1391753846, 1.16284516465, -1.2144095644]
+        self.FindEngineLeftColideTCPPose = [-0.870853950336, 0.0, 1.00801072426, 1.1391753846, 1.16284516465, -1.2144095644]
+        self.FindEngineMidDownTCPPose = [ 0.0618898965066, -0.203589651576, 1.01116829519, -2.06828472623, -0.148077989726, 2.20184158041]
+        self.FindEngineMiColideTCPPose = [-0.0773473988767, -0.20360053125, 1.01112718356, -2.06825873066, -0.148186823079, 2.20172386733]
+        #----------------------------------------------------------------------------------------
+
+
+
+        #----------------------------------------------------------------------------------------
+        # Tool Changing TCP Poses
+        #----------------------------------------------------------------------------------------
+        # AAPR -- After Attach - Pre Release
         self.PreAttachAtlasCloseTCPPose = [-0.953986242747, -0.234228631949, -0.223034435224, -1.4005366775, -0.925839002818, 1.55970065186]
         self.AttachAtlasTCPPose = [-0.967152647463, -0.234133433682, -0.222960059804, -1.40056793776, -0.925751048978, 1.55957875389]
         self.AAPRAtlasTCPPose = [-1.01261300113, -0.234543501521, 0.111905916583, -1.51448717582, -1.00198300826, 1.48195499752]
-
-        # AAPR -- After Attach - Pre Release
-        self.ReleaseForLiftTCPPose = [-1.0356252669, -0.221274837529, 0.24442191481, -1.48618936219, -1.00771344804, 1.49756812722]
 
         self.PreAttachLFToolCloseTCPPose = [-0.314196796263, -0.460490185045, -0.307773304476, 1.49509891331, 0.991289183192, 1.49449508332]
         self.AttachLFToolTCPPose = [-0.301317571922, -0.462295211687, -0.307756046838, 1.50210590005, 1.00838306356, 1.49525355553]
@@ -55,10 +71,15 @@ class ur_tcp_pose_smaster():
         self.AttachOFToolTCPPose = [-0.230157982196, -0.304933361338, -0.323093185807, 1.51063178157, 1.01647663729, 1.4742918683]
         self.AAPROFTool1TCPPose = [-0.230106567314, -0.304915066616, -0.44304589107, 1.51061888966, 1.01641048992, 1.47443984473]
         self.AAPROFTool2TCPPose = [-0.302339094126, -0.304920167014, -0.44311872881, 1.51065216074, 1.01640194847, 1.47444601524]
+        #----------------------------------------------------------------------------------------
 
-        # While Atlas Tool is attached
+
+
+
+        #----------------------------------------------------------------------------------------
+        # LF Tightening
+        #----------------------------------------------------------------------------------------
         self.AboveEngineTCPPose = [-0.570401398899, -0.213429808561, 0.444701426899, -1.5022823698, -1.02199286632, 1.46496484875]
-
 
         self.FarAboveBoltPair1TCPPose = [-0.0784896487942, -0.198313371814, 0.560034029131, -1.50228268223, -1.02180473399, 1.46494776698]
         self.CloseAboveBoltPair1TCPPose = [-0.0907433283046, -0.198958413547, 0.598781784017, -1.42736061959, -1.01986093313, 1.46158494504]
@@ -72,25 +93,70 @@ class ur_tcp_pose_smaster():
         self.CloseAboveBoltPair3TCPPose = [-0.251764739397, -0.198932267163, 0.599280223362, -1.42737193363, -1.01978563604, 1.46151771638]
         self.AtBoltPair3TCPPose = [-0.251764739397, -0.198932267163, 0.599280223362 + 0.15, -1.42737193363, -1.01978563604, 1.46151771638]
 
-        
-        self.FindEngineRightDownTCPPose = [-0.476027542627, -0.560034757959, 1.02107340693, -1.57525004049, 0.299255540234, 0.364537901289]
-        self.FindEngineRightColideTCPPose = [-0.476111259039, -0.4, 1.02100659443, -1.57516026151, 0.299218018579, 0.364387736323]
-        self.FindEngineLeftDownTCPPose = [-0.870853950336, 0.153700134813, 1.00801072426, 1.1391753846, 1.16284516465, -1.2144095644]
-        self.FindEngineLeftColideTCPPose = [-0.870853950336, 0.0, 1.00801072426, 1.1391753846, 1.16284516465, -1.2144095644]
-        self.FindEngineMidDownTCPPose = [ 0.0618898965066
-y: -0.203589651576
-z: 1.01116829519
-rx: -2.06828472623
-ry: -0.148077989726
-rz: 2.20184158041
-]
-        self.FindEngineMiColideTCPPose = [-0.0773473988767
-y: -0.20360053125
-z: 1.01112718356
-rx: -2.06825873066
-ry: -0.148186823079
-rz: 2.20172386733
-]
+        self.FarAboveBoltPair4TCPPose = [] 
+        self.CloseAboveBoltPair4TCPPos = []
+        self.AtBoltPair4TCPPose = []
+
+        self.FarAboveBoltPair5TCPPose = [] 
+        self.CloseAboveBoltPair5TCPPos = []
+        self.AtBoltPair5TCPPose = []
+
+        self.FarAboveBoltPair6TCPPose = [] 
+        self.CloseAboveBoltPair6TCPPos = []
+        self.AtBoltPair6TCPPose = []
+
+        self.FarAboveBoltPair7TCPPose = [] 
+        self.CloseAboveBoltPair7TCPPos = []
+        self.AtBoltPair7TCPPose = []
+
+        self.FarAboveBoltPair8TCPPose = [] 
+        self.CloseAboveBoltPair8TCPPos = []
+        self.AtBoltPair8TCPPose = []
+
+        self.FarAboveBoltPair9TCPPose = [] 
+        self.CloseAboveBoltPair9TCPPos = []
+        self.AtBoltPair9TCPPose = []
+
+        self.FarAboveBoltPair10TCPPose = [] 
+        self.CloseAboveBoltPair10TCPPos = []
+        self.AtBoltPair10TCPPose = []
+
+        self.FarAboveBoltPair11TCPPose = [] 
+        self.CloseAboveBoltPair11TCPPos = []
+        self.AtBoltPair11TCPPose = []
+
+        self.FarAboveBoltPair12TCPPose = [] 
+        self.CloseAboveBoltPair12TCPPos = []
+        self.AtBoltPair12TCPPose = []
+        #----------------------------------------------------------------------------------------
+
+
+
+
+        #----------------------------------------------------------------------------------------
+        # OF Tightening
+        #----------------------------------------------------------------------------------------
+        self.OFMidpoint1TCPPose = []
+        self.OFMidpoint2TCPPose = []
+
+        self.AboveUntightenedOF1TCPPose = []
+        self.AtUntightenedOF1TCPPose = []
+        self.AtTightenedOF1TCPPose = []
+        self.AboveTightenedOF1TCPPose = []
+
+        self.AboveUntightenedOF2TCPPose = []
+        self.AtUntightenedOF2TCPPose = []
+        self.AtTightenedOF2TCPPose = []
+        self.AboveTightenedOF2TCPPose = []
+
+        self.AboveUntightenedOF3TCPPose = []
+        self.AtUntightenedOF3TCPPose = []
+        self.AtTightenedOF3TCPPose = []
+        self.AboveTightenedOF3TCPPose = []
+        #----------------------------------------------------------------------------------------
+
+
+
 
         self.tcp_rate = rospy.Rate(10)
 
@@ -124,13 +190,27 @@ rz: 2.20172386733
 
         if self.go_to_tcp_pose == "reset":
             self.go_to_tcp_pose_prev = "reset"
-            #self.ResetTCP()
+    
+        # This is awesome...
+        for pose in ["PreAttachAtlasCloseTCP",
+                     "AAPRAtlasTCP",
+                     "PreAttachLFToolCloseTCP",
+                     "AttachLFToolTCP"]:
+            if self.go_to_tcp_pose == pose and self.go_to_tcp_pose_prev != pose:
+                self.go_to_tcp_pose_prev = pose
+                tcp_pose = "self." + pose + "Pose"
+                method = "self.moveL(" + tcp_pose + ", a=0.3, v=0.5, t=0)"
+                eval(method)
+            else:
+                pass
+            
 
-        if self.go_to_tcp_pose == "PreAttachAtlasCloseTCP" and self.go_to_tcp_pose_prev != "PreAttachAtlasCloseTCP":
-            self.go_to_tcp_pose_prev = "PreAttachAtlasCloseTCP"
-            self.PreAttachAtlasCloseTCP()
+        #if self.go_to_tcp_pose == "PreAttachAtlasCloseTCP" and self.go_to_tcp_pose_prev != "PreAttachAtlasCloseTCP":
+        #    self.go_to_tcp_pose_prev = "PreAttachAtlasCloseTCP"
+        #    self.PreAttachAtlasCloseTCP()
 
-        elif self.go_to_tcp_pose == "AttachAtlasTCP" and self.go_to_tcp_pose_prev != "AttachAtlasTCP":
+        '''
+        if self.go_to_tcp_pose == "AttachAtlasTCP" and self.go_to_tcp_pose_prev != "AttachAtlasTCP":
             self.go_to_tcp_pose_prev = "AttachAtlasTCP"
             self.AttachAtlasTCP()
 
@@ -222,7 +302,7 @@ rz: 2.20172386733
         else:
             pass
 
-        '''
+    
         elif self.go_to_joint_pose == "FindEngineRight2TCP":
             self.FindEngineRight2TCP()
 
@@ -245,8 +325,8 @@ rz: 2.20172386733
     def ResetTCP(self):
         self.moveL(self.ResetTCPPose, a=0.3, v=0.5, t=0)
 
-    def PreAttachAtlasCloseTCP(self):
-        self.moveL(self.PreAttachAtlasCloseTCPPose, a=0.3, v=0.5, t=0)
+    #def PreAttachAtlasCloseTCP(self):
+    #    self.moveL(self.PreAttachAtlasCloseTCPPose, a=0.3, v=0.5, t=0)
 
     def AttachAtlasTCP(self):
         self.moveL(self.AttachAtlasTCPPose, a=0.3, v=0.5, t=0)
@@ -329,7 +409,7 @@ rz: 2.20172386733
         self.moveL(self.FindEngineLeft2TCPPose, a=0.3, v=0.5, t=0)
 
     def FindEngineLeft3TCP(self):
-        self.moveL(self.FindEngineLeft3TCPPose, a=0.3, v=0.5, t=)
+        self.moveL(self.FindEngineLeft3TCPPose, a=0.3, v=0.5, t=0)
         while True:
             if self.z < -25:
                 self.urScriptPublisher.publish("stopl(a=5)")
@@ -343,7 +423,7 @@ rz: 2.20172386733
         self.moveL(self.FindEngineMid2TCPPose, a=0.3, v=0.5, t=0)
 
     def FindEngineMid3TCP(self):
-        self.moveL(self.FindEngineMid3TCPPose, a=0.3, v=0.5, t=)
+        self.moveL(self.FindEngineMid3TCPPose, a=0.3, v=0.5, t=0)
         rospy.sleep(1)
         while True:
             if self.z < -25:
