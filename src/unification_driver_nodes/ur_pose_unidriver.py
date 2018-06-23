@@ -35,6 +35,7 @@ class ur_pose_unidriver():
         self.ur_pose_unidriver_got_msg_from_ur_joint_pose_smaster = False
         self.ur_pose_unidriver_got_msg_from_moveit_smaster = False
         self.act_pos = "_"
+        self.reset_act_pos = "reset"
         self.act_tcp_pos = "_"
         self.act_joint_pos = "_"
         self.executing = False
@@ -147,11 +148,13 @@ class ur_pose_unidriver():
 
         if "TCP" in ur_mode_cmd.ref_pos and ur_mode_cmd.should_plan == False:
             self.ur_pose_unidriver_to_ur_tcp_pose_smaster_publisher.publish(ur_mode_cmd.ref_pos)
+            self.ur_pose_unidriver_to_ur_joint_pose_smaster_publisher.publish("reset")
             self.got_cmd_ref_pos = ur_mode_cmd.ref_pos
             self.got_cmd_should_plan = ur_mode_cmd.should_plan
 
         elif "JOINT" in ur_mode_cmd.ref_pos and ur_mode_cmd.should_plan == False:
             self.ur_pose_unidriver_to_ur_joint_pose_smaster_publisher.publish(ur_mode_cmd.ref_pos)
+            self.ur_pose_unidriver_to_ur_tcp_pose_smaster_publisher.publish("reset")
             self.got_cmd_ref_pos = ur_mode_cmd.ref_pos
             self.got_cmd_should_plan = ur_mode_cmd.should_plan
 

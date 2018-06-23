@@ -45,6 +45,12 @@ class ur_joint_pose_smaster():
         self.PreAttachOFToolFarJOINTPose = [0.30180624127388, -0.37626773515810186, 2.060617446899414, -1.704867188130514, -1.2735651175128382, 0.41501858830451965]
         self.AboveEngineJOINTPose = [0.08036433905363083, -1.4317691961871546, 2.296618700027466, 2.2488040924072266, -1.664436165486471, 0.36170265078544617]
 
+        self.PreFindEngineJOINT = [0.045610461384058, -1.7011755148517054, 1.6724138259887695, -3.188571278248922, 1.467016339302063, 0.32854679226875305]
+        self.FindEngineRightUpJOINT = [0.7311691641807556, -1.1983607451068323, 1.1075925827026367, -3.0703700224505823, 2.441229820251465, 0.41306591033935547]
+        self.FindEngineLeftUpJOINT = [-0.4624560515033167, -1.0342209974872034, 0.8818979263305664, -2.8513134161578577, 0.4796641170978546, 1.461244821548462]
+        self.FindEngineMidUpJOINT = [-0.06745511690248662, -2.8873093763934534, 2.1933436393737793, -2.5130417982684534, -1.5144537130938929, 1.4326841831207275]
+
+
         self.joint_rate = rospy.Rate(125)
 
         rospy.sleep(2)
@@ -53,7 +59,7 @@ class ur_joint_pose_smaster():
 
 
 
-    def moveJ(self, jointPose, a=1.5, v=0.5, t=0, r=0):
+    def moveJ(self, jointPose, a=0.3, v=0.5, t=0, r=0):
 
         if len(jointPose) == 6:
             script_str = "movej(" + str(jointPose) + ", a=" + str(a) + ", v=" + str(v) + ", t=" + str(t) +  ", r=" + str(r) + ")"
@@ -86,9 +92,9 @@ class ur_joint_pose_smaster():
             self.go_to_joint_pose_prev = "HomeJOINT"
             self.HomeJOINT()
 
-        elif self.go_to_joint_pose == "reset" and self.go_to_joint_pose_prev != "reset":
+        elif self.go_to_joint_pose == "reset":
             self.go_to_joint_pose_prev = "reset"
-            self.ResetJOINT()
+            #self.ResetJOINT()
 
         elif self.go_to_joint_pose == "AboveEngineJOINT" and self.go_to_joint_pose_prev != "AboveEngineJOINT":
             self.go_to_joint_pose_prev = "AboveEngineJOINT"
@@ -127,22 +133,22 @@ class ur_joint_pose_smaster():
 
 
     def HomeJOINT(self):
-        self.moveJ(self.HomeJOINTPose, a=1.5, v=5, t=3, r=0)
+        self.moveJ(self.HomeJOINTPose, a=0.3, v=0.5, t=0, r=0)
 
     def ResetJOINT(self):
-        self.moveJ(self.ResetJOINTPose, a=1.5, v=5, t=3, r=0)
+        self.moveJ(self.ResetJOINTPose, a=0.3, v=0.5, t=0, r=0)
 
     def AboveEngineJOINT(self):
-        self.moveJ(self.AboveEngineJOINTPose, a=1.5, v=5, t=3, r=0)
+        self.moveJ(self.AboveEngineJOINTPose, a=0.3, v=0.5, t=0, r=0)
 
     def PreAttachAtlasFarJOINT(self):
-        self.moveJ(self.PreAttachAtlasFarJOINTPose, a=1.5, v=5, t=3, r=0)
+        self.moveJ(self.PreAttachAtlasFarJOINTPose, a=0.3, v=0.5, t=0, r=0)
 
     def PreAttachLFToolFarJOINT(self):
-        self.moveJ(self.PreAttachLFToolFarJOINTPose, a=1.5, v=5, t=3, r=0)
+        self.moveJ(self.PreAttachLFToolFarJOINTPose, a=0.3, v=0.5, t=0, r=0)
 
     def PreAttachOFToolFarJOINT(self):
-        self.moveJ(self.PreAttachOFToolFarJOINTPose, a=1.5, v=5, t=3, r=0)
+        self.moveJ(self.PreAttachOFToolFarJOINTPose, a=0.3, v=0.5, t=0, r=0)
 
     def jointCallback(self, joint):
 
@@ -161,12 +167,12 @@ class ur_joint_pose_smaster():
             self.PreAttachOFToolFarJOINTPose,
             self.AboveEngineJOINTPose]:
 
-            if  abs((abs(joint.position[0]) - abs(pose[0]))) < 0.01 and\
-                abs((abs(joint.position[1]) - abs(pose[1]))) < 0.01 and\
-                abs((abs(joint.position[2]) - abs(pose[2]))) < 0.01 and\
-                abs((abs(joint.position[3]) - abs(pose[3]))) < 0.01 and\
-                abs((abs(joint.position[4]) - abs(pose[4]))) < 0.01 and\
-                abs((abs(joint.position[5]) - abs(pose[5]))) < 0.01:
+            if  abs((abs(joint.position[0]) - abs(pose[0]))) < 0.001 and\
+                abs((abs(joint.position[1]) - abs(pose[1]))) < 0.001 and\
+                abs((abs(joint.position[2]) - abs(pose[2]))) < 0.001 and\
+                abs((abs(joint.position[3]) - abs(pose[3]))) < 0.001 and\
+                abs((abs(joint.position[4]) - abs(pose[4]))) < 0.001 and\
+                abs((abs(joint.position[5]) - abs(pose[5]))) < 0.001:
                 self.ur_joint_pose_name = pose
         
             if self.ur_joint_pose_name == self.HomeJOINTPose:

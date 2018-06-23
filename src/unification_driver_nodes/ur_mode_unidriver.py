@@ -207,7 +207,7 @@ class ur_mode_unidriver():
             self.violation = False
             self.fault = False
 
-        elif "SAFEGUARD" in ur_mode.data ==:
+        elif "SAFEGUARD" in ur_mode.data :
             self.normal = False
             self.reduced = False
             self.protective_stop = False
