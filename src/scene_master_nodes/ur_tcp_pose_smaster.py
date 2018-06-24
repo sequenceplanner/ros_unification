@@ -34,9 +34,33 @@ class ur_tcp_pose_smaster():
         self.urScriptPublisher = rospy.Publisher("/ur_driver/URScript", String, queue_size=10)
 
         self.z = 0
-        self.isclose_tolerance = 0.005
+        self.isclose_tolerance = 0.002
         self.ur_tcp_pose_state = ""
         self.go_to_tcp_pose_prev = ""
+
+
+        self.collision_right = False
+        self.collision_left = False
+        self.collision_mid = False
+        self.found_right_x  = 0
+        self.found_right_y  = 0
+        self.found_right_z  = 0
+        self.found_right_rx = 0
+        self.found_right_ry = 0
+        self.found_right_rz = 0
+        self.found_left_x  = 0
+        self.found_left_y  = 0
+        self.found_left_z  = 0
+        self.found_left_rx = 0
+        self.found_left_ry = 0
+        self.found_left_rz = 0
+        self.found_mid_x  = 0
+        self.found_mid_y  = 0
+        self.found_mid_z  = 0
+        self.found_mid_rx = 0
+        self.found_mid_ry = 0
+        self.found_mid_rz = 0
+        
 
         # Unification TCP Poses
         self.tcp_names = ['x', 'y', 'z', 'rx', 'ry', 'rz']
@@ -135,9 +159,9 @@ class ur_tcp_pose_smaster():
 
 
         self.pose_names = ["FindEngineRightDownTCP",
-            "FindEngineRightCollideTCP", 
+            #"FindEngineRightCollideTCP", 
             "FindEngineLeftDownTCP",
-            "FindEngineLeftCollideTCP",
+            #"FindEngineLeftCollideTCP",
             "FindEngineMidDownTCP",
             "PreAttachAtlasCloseTCP", 
             "AttachAtlasTCP",
@@ -211,6 +235,9 @@ class ur_tcp_pose_smaster():
         while not rospy.is_shutdown():        
     
             self.ur_tcp_pose_to_unidriver_publisher.publish(self.ur_tcp_pose_state)
+            print self.FindEngineLeftCollideTCPPose
+
+            
 
             self.tcp_rate.sleep()
         rospy.spin()
@@ -251,12 +278,17 @@ class ur_tcp_pose_smaster():
 
        
     def FindEngineRightCollideTCP(self):
-        self.moveL(self.FindEngineRightCollideTCP, a=0.3, v=0.05, t=0)
+        self.moveL(self.FindEngineRightCollideTCPPose, a=0.3, v=0.05, t=0)
         while True:
             if self.z < -25:
                 self.urScriptPublisher.publish("stopl(a=5)")
-                self.found_engine_right_x = self.tcp_x
-                self.found_engine_right_y = self.tcp_y
+                self.collision_right = True 
+                self.found_right_x = self.tcp_x
+                self.found_right_y = self.tcp_y
+                self.found_right_z = self.tcp_z
+                self.found_right_rx = self.tcp_rx
+                self.found_right_ry = self.tcp_ry
+                self.found_right_rz = self.tcp_rz
                 break
             else:
                 pass
@@ -266,8 +298,13 @@ class ur_tcp_pose_smaster():
         while True:
             if self.z < -25:
                 self.urScriptPublisher.publish("stopl(a=5)")
-                self.found_engine_left_x = self.tcp_x
-                self.found_engine_left_y = self.tcp_y
+                self.collision_left = True 
+                self.found_left_x = self.tcp_x
+                self.found_left_y = self.tcp_y
+                self.found_left_z = self.tcp_z
+                self.found_left_rx = self.tcp_rx
+                self.found_left_ry = self.tcp_ry
+                self.found_left_rz = self.tcp_rz
                 break
             else:
                 pass
@@ -278,10 +315,13 @@ class ur_tcp_pose_smaster():
         while True:
             if self.z < -25:
                 self.urScriptPublisher.publish("stopl(a=5)")
-                self.found_engine_mid_x = self.tcp_x
-                self.found_engine_mid_y = self.tcp_y
-                #print self.found_engine_mid_x
-                #print self.found_engine_mid_y
+                self.collision_mid = True 
+                self.found_mid_x = self.tcp_x
+                self.found_mid_y = self.tcp_y
+                self.found_mid_z = self.tcp_z
+                self.found_mid_rx = self.tcp_rx
+                self.found_mid_ry = self.tcp_ry
+                self.found_mid_rz = self.tcp_rz
                 break
             else:
                 pass
@@ -302,12 +342,26 @@ class ur_tcp_pose_smaster():
 
         self.ur_tcp_pose_name = []
 
-        for pose in [self.FindEngineRightDownTCPPose,
-            self.FindEngineRightCollideTCPPose, 
+        print()
+
+        if self.collision_right == False:
+            self.FindEngineRightCollideTCPPose = [-0.476111259039, -0.4, 1.02100659443, -1.57516026151, 0.299218018579, 0.364387736323]
+        else:
+            self.FindEngineRightCollideTCPPose = [self.found_right_x, self.found_right_y, self.found_right_z, self.found_right_rx, self.found_right_ry, self.found_right_rz]
+
+        if self.collision_left == False:
+            self.FindEngineLeftCollideTCPPose = [-0.870853950336, 0.0, 1.00801072426, 1.1391753846, 1.16284516465, -1.2144095644]
+        else:
+            self.FindEngineLefCollideTCPPose = [self.found_left_x, self.found_left_y, self.found_left_z, self.found_left_rx, self.found_left_ry, self.found_left_rz]
+
+        if self.collision_mid == False:
+            self.FindEngineMidCollideTCPPose = [-0.0773473988767, -0.20360053125, 1.01112718356, -2.06825873066, -0.148186823079, 2.20172386733]
+        else:
+            self.FindEngineMidCollideTCPPose = [self.found_mid_x, self.found_mid_y, self.found_mid_z, self.found_mid_rx, self.found_mid_ry, self.found_mid_rz]
+
+        for pose in [self.FindEngineRightDownTCPPose, 
             self.FindEngineLeftDownTCPPose,
-            self.FindEngineLeftCollideTCPPose,
             self.FindEngineMidDownTCPPose,
-            self.FindEngineMidCollideTCPPose,
             self.PreAttachAtlasCloseTCPPose,
             self.AttachAtlasTCPPose,
             self.AAPRAtlasTCPPose,
@@ -357,14 +411,39 @@ class ur_tcp_pose_smaster():
             self.AtBoltPair12TCPPose,
             ]:
 
-            if  abs((abs(self.tcp_x) - abs(pose[0]))) < 0.001 and\
+            if  abs((abs(self.tcp_x) - abs(self.FindEngineRightCollideTCPPose[0]))) < 0.003 and\
+                abs((abs(self.tcp_y) - abs(self.FindEngineRightCollideTCPPose[1]))) < 0.003 and\
+                abs((abs(self.tcp_z) - abs(self.FindEngineRightCollideTCPPose[2]))) < 0.003 and\
+                abs((abs(self.tcp_rx) - abs(self.FindEngineRightCollideTCPPose[3]))) < 0.003 and\
+                abs((abs(self.tcp_ry) - abs(self.FindEngineRightCollideTCPPose[4]))) < 0.003 and\
+                abs((abs(self.tcp_rz) - abs(self.FindEngineRightCollideTCPPose[5]))) < 0.003:
+                self.ur_tcp_pose_state = "FindEngineRightCollideTCP"
+
+            elif  abs((abs(self.tcp_x) - abs(self.FindEngineLeftCollideTCPPose[0]))) < 0.003 and\
+                abs((abs(self.tcp_y) - abs(self.FindEngineLeftCollideTCPPose[1]))) < 0.003 and\
+                abs((abs(self.tcp_z) - abs(self.FindEngineLeftCollideTCPPose[2]))) < 0.003 and\
+                abs((abs(self.tcp_rx) - abs(self.FindEngineLeftCollideTCPPose[3]))) < 0.003 and\
+                abs((abs(self.tcp_ry) - abs(self.FindEngineLeftCollideTCPPose[4]))) < 0.003 and\
+                abs((abs(self.tcp_rz) - abs(self.FindEngineLeftCollideTCPPose[5]))) < 0.003:
+                self.ur_tcp_pose_state = "FindEngineLeftCollideTCP"
+
+            elif  abs((abs(self.tcp_x) - abs(self.FindEngineMidCollideTCPPose[0]))) < 0.003 and\
+                abs((abs(self.tcp_y) - abs(self.FindEngineMidCollideTCPPose[1]))) < 0.003 and\
+                abs((abs(self.tcp_z) - abs(self.FindEngineMidCollideTCPPose[2]))) < 0.003 and\
+                abs((abs(self.tcp_rx) - abs(self.FindEngineMidCollideTCPPose[3]))) < 0.003 and\
+                abs((abs(self.tcp_ry) - abs(self.FindEngineMidCollideTCPPose[4]))) < 0.003 and\
+                abs((abs(self.tcp_rz) - abs(self.FindEngineMidCollideTCPPose[5]))) < 0.003:
+                self.ur_tcp_pose_state = "FindEngineMidCollideTCP"            
+
+
+            elif  abs((abs(self.tcp_x) - abs(pose[0]))) < 0.001 and\
                 abs((abs(self.tcp_y) - abs(pose[1]))) < 0.001 and\
                 abs((abs(self.tcp_z) - abs(pose[2]))) < 0.001 and\
                 abs((abs(self.tcp_rx) - abs(pose[3]))) < 0.001 and\
                 abs((abs(self.tcp_ry) - abs(pose[4]))) < 0.001 and\
                 abs((abs(self.tcp_rz) - abs(pose[5]))) < 0.001:
                 self.ur_tcp_pose_name = pose
-                
+
             else:
                 self.ur_tcp_pose_state = "unknown"
 

@@ -10,12 +10,15 @@ import math
 import os
 import socket
 import atexit
+import signal
 
 from std_msgs.msg import String
 from sensor_msgs.msg import JointState
 from geometry_msgs.msg import TwistStamped, WrenchStamped
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from tf2_msgs.msg import TFMessage
+from unification_roscontrol.msg import RecuSPToUni
+from unification_roscontrol.msg import URPoseSPToUni
 from ur_msgs.msg import IOStates
 from ur_msgs.srv import SetIO
 
@@ -34,6 +37,13 @@ class Test1():
         
         self.init = rospy.Rate(30)
         self.io_service = rospy.ServiceProxy('/ur_driver/set_io', SetIO, self.cb5)
+
+        self.lock_rsp = False
+        self.unlock_rsp = False
+        self.open_gripper = False
+        self.close_gripper = False
+        self.executing = False
+        self.ref_pos = ""
 
         # Wait for topics to start publishing
         rospy.Subscriber("/joint_states", JointState, self.cb1)
@@ -80,7 +90,8 @@ class Test1():
 
         # Publish to robot
         # self.urScriptPub = rospy.Publisher("/ur_driver/URScript", String, queue_size=1)
-        self.LFtool_RP = rospy.Publisher("/CT_RECU_con", String, queue_size=1)
+        self.RecuSPToUniPublisher = rospy.Publisher("/unification_roscontrol/recu_sp_to_unidriver", RecuSPToUni, queue_size=1)
+        self.URPoseSPToUniPublisher = rospy.Publisher("/unification_roscontrol/ur_pose_sp_to_unidriver", URPoseSPToUni, queue_size=1)
 
         rospy.sleep(1.0)
         
@@ -92,7 +103,6 @@ class Test1():
         self.lifting = False
         self.freedrive = True
         
-        self.LFtool_RP.publish('recu_grab_lf')
         self.loadNPlay('/programs/CollabForce_Freedrive.urp')
 
         self.set_IO_states(1, 7, 1)
@@ -123,12 +133,20 @@ class Test1():
     def cb5(self,data):
         self.IO = data
         print 'wrote IO cb5'
+
+
  
     #----------------------------------------------------------------
     # spin function (To keep on the node running)
     #----------------------------------------------------------------
     def spin(self):
+
+        self.recu_sp_to_uni = RecuSPToUni()
+        self.ur_pose_sp_to_uni = URPoseSPToUni()
+
         while (not rospy.is_shutdown()):
+
+            
 
             #--------------------------------------------------------
             # Change the mode from handling the object to releasing the object:
@@ -141,12 +159,48 @@ class Test1():
                 self.set_IO_states(1, 7, 1)
 
                 while not self.IO.digital_out_states[7].state:
+                    if self.IO.digital_out_states[0].state == 1:
+                        RecuSPToUni.lock_rsp = False
+                        RecuSPToUni.unlock_rsp = False
+                        RecuSPToUni.open_gripper = True
+                        RecuSPToUni.close_gripper = False
+                        self.RecuSPToUniPublisher.publish(self.recu_sp_to_uni)
+                    else:
+                        RecuSPToUni.lock_rsp = False
+                        RecuSPToUni.unlock_rsp = False
+                        RecuSPToUni.open_gripper = False
+                        RecuSPToUni.close_gripper = True
+                        self.RecuSPToUniPublisher.publish(self.recu_sp_to_uni)
                     self.init.sleep()
                 while self.IO.digital_out_states[7].state:
+                    if self.IO.digital_out_states[0].state == 1:
+                        RecuSPToUni.lock_rsp = False
+                        RecuSPToUni.unlock_rsp = False
+                        RecuSPToUni.open_gripper = True
+                        RecuSPToUni.close_gripper = False
+                        self.RecuSPToUniPublisher.publish(self.recu_sp_to_uni)
+                    else:
+                        RecuSPToUni.lock_rsp = False
+                        RecuSPToUni.unlock_rsp = False
+                        RecuSPToUni.open_gripper = False
+                        RecuSPToUni.close_gripper = True
+                        self.RecuSPToUniPublisher.publish(self.recu_sp_to_uni)
                     self.init.sleep()
                 
                 #Go into freedrive
                 self.tcp('stop')
+                URPoseSPToUni.should_plan = False
+                URPoseSPToUni.ref_pos = "AfterLFOperationJOINT"
+                self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
+                self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
+                self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
+                self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
+                self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
+                self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
+                time.sleep(1)
+                os.system('rosnode kill /pickNPlace')
+                time.sleep(1)
+                os.kill(os.getppid(), signal.SIGHUP)
                 self.loadNPlay('/programs/CollabForce_Freedrive.urp')
                 self.freedrive = True
                 self.lifting = False
@@ -164,8 +218,32 @@ class Test1():
                 self.set_IO_states(1, 7, 1)
 
                 while not self.IO.digital_out_states[7].state:
+                    if self.IO.digital_out_states[0].state == 1:
+                        RecuSPToUni.lock_rsp = False
+                        RecuSPToUni.unlock_rsp = False
+                        RecuSPToUni.open_gripper = True
+                        RecuSPToUni.close_gripper = False
+                        self.RecuSPToUniPublisher.publish(self.recu_sp_to_uni)
+                    else:
+                        RecuSPToUni.lock_rsp = False
+                        RecuSPToUni.unlock_rsp = False
+                        RecuSPToUni.open_gripper = False
+                        RecuSPToUni.close_gripper = True
+                        self.RecuSPToUniPublisher.publish(self.recu_sp_to_uni)
                     self.init.sleep()
                 while self.IO.digital_out_states[7].state:
+                    if self.IO.digital_out_states[0].state == 1:
+                        RecuSPToUni.lock_rsp = False
+                        RecuSPToUni.unlock_rsp = False
+                        RecuSPToUni.open_gripper = True
+                        RecuSPToUni.close_gripper = False
+                        self.RecuSPToUniPublisher.publish(self.recu_sp_to_uni)
+                    else:
+                        RecuSPToUni.lock_rsp = False
+                        RecuSPToUni.unlock_rsp = False
+                        RecuSPToUni.open_gripper = False
+                        RecuSPToUni.close_gripper = True
+                        self.RecuSPToUniPublisher.publish(self.recu_sp_to_uni)
                     self.init.sleep()
                     
                 #Go into lifting mode

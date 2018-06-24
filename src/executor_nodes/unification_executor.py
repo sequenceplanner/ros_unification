@@ -28,6 +28,8 @@ from unification_roscontrol.msg import MiRModeUniToSP
 from unification_roscontrol.msg import HecuUniToSP
 from unification_roscontrol.msg import AGVAlvarUniToSP
 from std_msgs.msg import String
+import os
+import threading
 import time
 
 
@@ -81,9 +83,17 @@ class unification_executor():
         
         self.main()
 
+    def run_picknplace(self):
+        def callback_run_picknplace():
+            os.system('rosrun unification_roscontrol picknplace.py')
+        t1 = threading.Thread(target=callback_run_picknplace)
+        t1.daemon = True
+        t1.start()
 
     
     def main(self):
+
+        #self.run_picknplace()
 
         while not rospy.is_shutdown():
 
@@ -400,6 +410,29 @@ class unification_executor():
 
             else:
                 pass
+
+            
+            if self.cmd == "LFMagic" and self.act_pos == "LFOperationMidpoint5JOINT" and self.seq_state == 0 and self.done == False:
+                rospy.sleep(2)
+                self.executing = True
+                self.got_cmd = self.cmd
+                self.done = False
+                self.run_picknplace()
+                self.seq_state = 1
+            
+            elif self.cmd == "LFMagic" and self.act_pos == "AfterLFOperationJOINT" and self.seq_state == 1:
+                self.executing = False
+                self.got_cmd = self.cmd
+                self.done = True
+
+            elif self.cmd == "" and self.done == True:
+                self.seq_state = 0
+                self.got_cmd = self.cmd
+                self.done = False
+
+            else:
+                pass
+
 
 
             ExecutorToSP.got_cmd = self.got_cmd
