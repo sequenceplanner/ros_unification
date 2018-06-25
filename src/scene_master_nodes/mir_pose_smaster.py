@@ -100,6 +100,8 @@ class mir_pose_smaster():
 
         if self.go_to_pos == "reset":
             self.go_to_pos_prev = "reset"
+            task = {"value" : "0"}
+            resp = requests.post('http://192.168.1.100:8080/v1.0.0/registers/2', json=task)
 
         elif self.go_to_pos == "mir_to_assembly" and self.go_to_pos_prev != "mir_to_assembly":
             self.go_to_pos_prev = "mir_to_assembly"
