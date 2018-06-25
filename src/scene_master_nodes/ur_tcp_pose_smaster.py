@@ -235,7 +235,7 @@ class ur_tcp_pose_smaster():
         while not rospy.is_shutdown():        
     
             self.ur_tcp_pose_to_unidriver_publisher.publish(self.ur_tcp_pose_state)
-            print self.FindEngineLeftCollideTCPPose
+            #print self.FindEngineLeftCollideTCPPose
 
             
 
@@ -342,7 +342,7 @@ class ur_tcp_pose_smaster():
 
         self.ur_tcp_pose_name = []
 
-        print()
+        #print()
 
         if self.collision_right == False:
             self.FindEngineRightCollideTCPPose = [-0.476111259039, -0.4, 1.02100659443, -1.57516026151, 0.299218018579, 0.364387736323]
