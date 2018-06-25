@@ -34,7 +34,7 @@ class mir_pose_smaster():
         self.mir_rate = rospy.Rate(10)
 
         self.mir_pose_state = ""
-        self.go_to_pos = ""
+        #self.go_to_pos = ""
         self.go_to_pos_prev = ""
 
         rospy.sleep(2)
@@ -90,11 +90,12 @@ class mir_pose_smaster():
     
     def mir_pose_unidriver_to_smaster_callback(self, data):
         self.go_to_pos = data.data
+        print data
 
         if self.go_to_pos == "reset":
             self.go_to_pos_prev = "reset"
 
-        if self.go_to_pos == "mir_to_assembly" and self.go_to_pos_prev != "mir_to_assembly":
+        elif self.go_to_pos == "mir_to_assembly" and self.go_to_pos_prev != "mir_to_assembly":
             self.go_to_pos_prev = "mir_to_assembly"
             self.start_mission()
         

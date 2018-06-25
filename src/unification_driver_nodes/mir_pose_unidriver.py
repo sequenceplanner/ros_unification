@@ -109,6 +109,10 @@ class mir_pose_unidriver():
         elif mir_mode_cmd.ref_pos == "charging":
             self.got_cmd_ref_pos = "charging"
             self.move_mir_to_charging_station_pos()
+	
+	elif mir_mode_cmd.ref_pos == "reset":
+            self.got_cmd_ref_pos = "teset"
+            self.mir_pose_unidriver_to_smaster_publisher.publish("reset")
 
         else:
             pass
