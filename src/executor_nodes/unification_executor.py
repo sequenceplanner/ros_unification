@@ -415,7 +415,7 @@ class unification_executor():
             # OF1 seq
             # --------------------------------------------------------------------------------
 
-            if self.cmd == "TightenOF1" and self.act_pos == "OFMidpoint2JOINT" and self.seq_state == 0 and self.done == False:
+            if self.cmd == "OFMagicA" and self.act_pos == "OFMidpoint2JOINT" and self.seq_state == 0 and self.done == False:
                 rospy.sleep(2)
                 self.executing = True
                 self.got_cmd = self.cmd
@@ -425,31 +425,31 @@ class unification_executor():
                 self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
                 self.seq_state = 1
             
-            elif self.cmd == "TightenOF1" and self.act_pos == "AboveUntightenedOF1JOINT" and self.seq_state == 1:
+            elif self.cmd == "OFMagicA" and self.act_pos == "AboveUntightenedOF1JOINT" and self.seq_state == 1:
                 URPoseSPToUni.should_plan = False
                 URPoseSPToUni.ref_pos = "AtUntightenedOF1JOINT"
                 self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
                 self.seq_state = 2
             
-            elif self.cmd == "TightenOF1" and self.act_pos == "AtUntightenedOF1JOINT" and self.seq_state == 2:
+            elif self.cmd == "OFMagicA" and self.act_pos == "AtUntightenedOF1JOINT" and self.seq_state == 2:
                 URPoseSPToUni.should_plan = False
                 URPoseSPToUni.ref_pos = "AtTightenedOF1JOINT"
                 self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
                 self.seq_state = 3
 
-            elif self.cmd == "TightenOF1" and self.act_pos == "AtTightenedOF1JOINT" and self.seq_state == 3:
+            elif self.cmd == "OFMagicA" and self.act_pos == "AtTightenedOF1JOINT" and self.seq_state == 3:
                 URPoseSPToUni.should_plan = False
                 URPoseSPToUni.ref_pos = "AboveTightenedOF1JOINT"
                 self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
                 self.seq_state = 4
 
-            elif self.cmd == "TightenOF1" and self.act_pos == "AboveTightenedOF1JOINT" and self.seq_state == 4:
+            elif self.cmd == "OFMagicA" and self.act_pos == "AboveTightenedOF1JOINT" and self.seq_state == 4:
                 URPoseSPToUni.should_plan = False
                 URPoseSPToUni.ref_pos = "OFMidpoint2JOINT"
                 self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
                 self.seq_state = 5
 
-            elif self.cmd == "TightenOF1" and self.act_pos == "OFMidpoint2JOINT" and self.seq_state == 5:
+            elif self.cmd == "OFMagicA" and self.act_pos == "OFMidpoint2JOINT" and self.seq_state == 5:
                 self.executing = False
                 self.got_cmd = self.cmd
                 self.done = True
@@ -467,7 +467,7 @@ class unification_executor():
             # OF2 seq
             # --------------------------------------------------------------------------------
 
-            if self.cmd == "TightenOF2" and self.act_pos == "OFMidpoint2JOINT" and self.seq_state == 0 and self.done == False:
+            if self.cmd == "OFMagicB" and self.act_pos == "OFMidpoint2JOINT" and self.seq_state == 0 and self.done == False:
                 rospy.sleep(2)
                 self.executing = True
                 self.got_cmd = self.cmd
@@ -477,31 +477,31 @@ class unification_executor():
                 self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
                 self.seq_state = 1
             
-            elif self.cmd == "TightenOF2" and self.act_pos == "AboveUntightenedOF2JOINT" and self.seq_state == 1:
+            elif self.cmd == "OFMagicB" and self.act_pos == "AboveUntightenedOF2JOINT" and self.seq_state == 1:
                 URPoseSPToUni.should_plan = False
                 URPoseSPToUni.ref_pos = "AtUntightenedOF2JOINT"
                 self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
                 self.seq_state = 2
             
-            elif self.cmd == "TightenOF2" and self.act_pos == "AtUntightenedOF2JOINT" and self.seq_state == 2:
+            elif self.cmd == "OFMagicB" and self.act_pos == "AtUntightenedOF2JOINT" and self.seq_state == 2:
                 URPoseSPToUni.should_plan = False
                 URPoseSPToUni.ref_pos = "AtTightenedOF2JOINT"
                 self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
                 self.seq_state = 3
 
-            elif self.cmd == "TightenOF2" and self.act_pos == "AtTightenedOF2JOINT" and self.seq_state == 3:
+            elif self.cmd == "OFMagicB" and self.act_pos == "AtTightenedOF2JOINT" and self.seq_state == 3:
                 URPoseSPToUni.should_plan = False
                 URPoseSPToUni.ref_pos = "AboveTightenedOF2JOINT"
                 self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
                 self.seq_state = 4
 
-            elif self.cmd == "TightenOF2" and self.act_pos == "AboveTightenedOF2JOINT" and self.seq_state == 4:
+            elif self.cmd == "OFMagicB" and self.act_pos == "AboveTightenedOF2JOINT" and self.seq_state == 4:
                 URPoseSPToUni.should_plan = False
                 URPoseSPToUni.ref_pos = "OFMidpoint2JOINT"
                 self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
                 self.seq_state = 5
 
-            elif self.cmd == "TightenOF2" and self.act_pos == "OFMidpoint2JOINT" and self.seq_state == 5:
+            elif self.cmd == "OFMagicB" and self.act_pos == "OFMidpoint2JOINT" and self.seq_state == 5:
                 self.executing = False
                 self.got_cmd = self.cmd
                 self.done = True
