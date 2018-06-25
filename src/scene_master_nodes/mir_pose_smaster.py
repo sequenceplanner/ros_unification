@@ -44,27 +44,27 @@ class mir_pose_smaster():
 # Set this PLC register to 1 to start movement
     def mir_start_movement(self):
         task = {"value" : "1"}
-        resp = requests.post('http://192.168.1.100:8080/v1.0.0/registers/1', json=task)
+        resp = requests.post('http://192.168.1.101:8080/v1.0.0/registers/1', json=task)
 
     # Set desired MiR state
     def mir_pause_state(self):
         task = {"state" : 4}
-        resp = requests.put('http://192.168.1.100:8080/v1.0.0/state', json=task)
+        resp = requests.put('http://192.168.1.101:8080/v1.0.0/state', json=task)
 
     # Set desired MiR state
     def mir_executing_state(self):
         task = {"state" : 5}
-        resp = requests.put('http://192.168.1.100:8080/v1.0.0/state', json=task)
+        resp = requests.put('http://192.168.1.101:8080/v1.0.0/state', json=task)
 
     # Charging mission
     def mission_uni_demo_to_queue(self):
         task ={"mission" : "3e19ba3e-77f3-11e8-909f-f44d306bb564"} 
-        resp = requests.post('http://192.168.1.100:8080/v1.0.0/mission_queue', json=task)
+        resp = requests.post('http://192.168.1.101:8080/v1.0.0/mission_queue', json=task)
         #self.charging = 1
     
     # Delete the Mission Queue
     def delete_mir_mission_queue(self):
-        resp = requests.delete('http://192.168.1.100:8080/v1.0.0/mission_queue')
+        resp = requests.delete('http://192.168.1.101:8080/v1.0.0/mission_queue')
 
     # Starting Mission 1
     def start_mission(self):
@@ -81,7 +81,7 @@ class mir_pose_smaster():
 
         while not rospy.is_shutdown():
 
-            resp = requests.get('http://192.168.1.100:8080/v1.0.0/registers/2')
+            resp = requests.get('http://192.168.1.101:8080/v1.0.0/registers/2')
             if resp.json() == {u'id': 2, u'value': 1}:
                 self.mir_pose_state = "assembly"
             else:
@@ -101,7 +101,7 @@ class mir_pose_smaster():
         if self.go_to_pos == "reset":
             self.go_to_pos_prev = "reset"
             task = {"value" : "0"}
-            resp = requests.post('http://192.168.1.100:8080/v1.0.0/registers/2', json=task)
+            resp = requests.post('http://192.168.1.101:8080/v1.0.0/registers/2', json=task)
 
         elif self.go_to_pos == "mir_to_assembly" and self.go_to_pos_prev != "mir_to_assembly":
             self.go_to_pos_prev = "mir_to_assembly"
