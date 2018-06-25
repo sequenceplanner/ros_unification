@@ -192,12 +192,7 @@ class Test1():
                 URPoseSPToUni.should_plan = False
                 URPoseSPToUni.ref_pos = "AfterLFOperationJOINT"
                 self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
-                self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
-                self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
-                self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
-                self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
-                self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
-                time.sleep(1)
+                rospy.sleep(10)
                 os.system('rosnode kill /pickNPlace')
                 time.sleep(1)
                 os.kill(os.getppid(), signal.SIGHUP)
