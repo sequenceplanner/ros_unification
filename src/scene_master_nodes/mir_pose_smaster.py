@@ -81,6 +81,12 @@ class mir_pose_smaster():
 
         while not rospy.is_shutdown():
 
+            resp = requests.get('http://192.168.1.100:8080/v1.0.0/registers/2')
+            if resp.json() == {u'id': 2, u'value': 1}:
+                self.mir_pose_state = "assembly"
+            else:
+                self.mir_pose_state = "unknown"
+
             self.mir_pose_to_unidriver_publisher.publish(self.mir_pose_state)
 
         self.mir_rate.sleep()
