@@ -66,12 +66,12 @@ class mir_pose_smaster():
 
     # Starting Mission 1
     def start_mission(self):
-        #self.delete_mir_mission_queue()
-        #time.sleep(1)
+        self.delete_mir_mission_queue()
+        time.sleep(2)
         self.mission_uni_demo_to_queue()
-        time.sleep(3)
+        time.sleep(2)
         self.mir_executing_state()
-        time.sleep(3)
+        time.sleep(2)
         self.mir_start_movement()
 
 
