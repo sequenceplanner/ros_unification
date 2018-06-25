@@ -411,16 +411,40 @@ class unification_executor():
             else:
                 pass
 
+
+            # --------------------------------------------------------------------------------
+            # LF Operation seq
+            # --------------------------------------------------------------------------------
             
-            if self.cmd == "LFMagic" and self.act_pos == "LFOperationMidpoint5JOINT" and self.seq_state == 0 and self.done == False:
+            if self.cmd == "TightenOF1" and self.act_pos == "OFMidpoint2JOINT" and self.seq_state == 0 and self.done == False:
                 rospy.sleep(2)
                 self.executing = True
                 self.got_cmd = self.cmd
                 self.done = False
-                self.run_picknplace()
+                URPoseSPToUni.should_plan = False
+                URPoseSPToUni.ref_pos = "AboveUntightenedOF1JOINT"
+                self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
                 self.seq_state = 1
             
-            elif self.cmd == "LFMagic" and self.act_pos == "AfterLFOperationJOINT" and self.seq_state == 1:
+            elif self.cmd == "TightenOF1" and self.act_pos == "AboveUntightenedOF1JOINT" and self.seq_state == 1:
+                URPoseSPToUni.should_plan = False
+                URPoseSPToUni.ref_pos = "AtUntightenedOF1JOINT"
+                self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
+                self.seq_state = 2
+            
+            elif self.cmd == "TightenOF1" and self.act_pos == "AtUntightenedOF1JOINT" and self.seq_state == 2:
+                URPoseSPToUni.should_plan = False
+                URPoseSPToUni.ref_pos = "AtTightenedOF1JOINT"
+                self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
+                self.seq_state = 3
+
+            elif self.cmd == "TightenOF1" and self.act_pos == "AboveTightenedOF1JOINT" and self.seq_state == 3:
+                URPoseSPToUni.should_plan = False
+                URPoseSPToUni.ref_pos = "AboveTightenedOF1JOINT"
+                self.URPoseSPToUniPublisher.publish(self.ur_pose_sp_to_uni)
+                self.seq_state = 3
+
+            elif self.cmd == "TightenOF1" and self.act_pos == "AfterLFOperationJOINT" and self.seq_state == 1:
                 self.executing = False
                 self.got_cmd = self.cmd
                 self.done = True
