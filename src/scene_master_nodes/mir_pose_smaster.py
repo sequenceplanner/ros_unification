@@ -77,7 +77,6 @@ class mir_pose_smaster():
 
     def main(self):
 
-        self.start_mission()
         while not rospy.is_shutdown():
 
             self.mir_pose_to_unidriver_publisher.publish(self.mir_pose_state)
@@ -89,7 +88,6 @@ class mir_pose_smaster():
     
     def mir_pose_unidriver_to_smaster_callback(self, data):
         if data.data == "mir_to_assembly":
-            print "asdf"
             self.start_mission()
         else:
             pass
