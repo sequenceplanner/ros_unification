@@ -21,7 +21,7 @@ from unification_roscontrol.msg import RecuSPToUni
 from unification_roscontrol.msg import RecuUniToSP
 from unification_roscontrol.msg import RecuSPToUni2
 from unification_roscontrol.msg import RecuUniToSP2
-import GPIOEmu as GPIO
+#import GPIOEmu as GPIO
 #import RPi.GPIO as GPIO
 import time
 

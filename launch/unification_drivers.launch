@@ -4,8 +4,10 @@
 
   <node name="mir_pose_unidriver" pkg="unification_roscontrol" type="mir_pose_unidriver.py">
   </node>
+  <!--
   <node name="mir_mode_unidriver" pkg="unification_roscontrol" type="mir_mode_unidriver.py">
   </node>
+  -->
   <node name="ur_pose_unidriver" pkg="unification_roscontrol" type="ur_pose_unidriver.py">
   </node>
   <node name="ur_mode_unidriver" pkg="unification_roscontrol" type="ur_mode_unidriver.py">

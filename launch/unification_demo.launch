@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <arg name="robot_ip"/>
+
+  <node name="unification_executor" pkg="unification_roscontrol" type="unification_executor.py">
+  </node>
+
+  <include file="$(find ur_modern_driver)/launch/Unification/ur10_unification_bringup.launch" >
+    <arg name="robot_ip" value="192.168.1.14"/>
+  </include>
+
+  <include file="$(find optoforce_etherdaq_driver)/launch/demo.launch" />
+
+  <include file="$(find unification_roscontrol)/launch/unification_drivers.launch" />
+
+  <include file="$(find unification_roscontrol)/launch/scene_master.launch" />
+
+</launch>
