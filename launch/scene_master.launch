@@ -20,9 +20,10 @@
   </node>
   <node name="ur_tcp_pose_smaster_helper" pkg="unification_roscontrol" type="ur_tcp_pose_smaster_helper.py">
   </node>
+  <!--
   <node name="mir_pose_smaster" pkg="unification_roscontrol" type="mir_pose_smaster.py">
   </node>
-
+  -->
   <include file="$(find unification_roscontrol)/launch/remote_recu_unidriver.launch" />
 
   <include file="$(find unification_roscontrol)/launch/remote_aecu_unidriver.launch" />

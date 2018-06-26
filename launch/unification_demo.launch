@@ -11,7 +11,9 @@
     <arg name="robot_ip" value="192.168.1.14"/>
   </include>
 
+  <!--
   <include file="$(find optoforce_etherdaq_driver)/launch/demo.launch" />
+  -->
 
   <include file="$(find unification_roscontrol)/launch/unification_drivers.launch" />
 

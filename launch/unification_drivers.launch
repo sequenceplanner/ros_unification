@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 
 <launch>
-
+  <!--
   <node name="mir_pose_unidriver" pkg="unification_roscontrol" type="mir_pose_unidriver.py">
   </node>
-  <!--
+  
   <node name="mir_mode_unidriver" pkg="unification_roscontrol" type="mir_mode_unidriver.py">
   </node>
   -->

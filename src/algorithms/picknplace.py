@@ -34,6 +34,8 @@ class Test1():
     # init function
     #----------------------------------------------------------------
     def __init__(self):
+
+	self.forcepublisher = rospy.Publisher("/FORCEFORCE", String, queue_size=1)
         
         self.forcepublisher = rospy.Publisher("/FORCEFORCE", String, queue_size=1)
 
