@@ -193,7 +193,7 @@ class Test1():
                     else:
                         RecuSPToUni.lock_rsp = False
                         RecuSPToUni.unlock_rsp = False
-                        RecuSP:ToUni.open_gripper = False
+                        RecuSPToUni.open_gripper = False
                         RecuSPToUni.close_gripper = True
                         self.RecuSPToUniPublisher.publish(self.recu_sp_to_uni)
                     self.init.sleep()
