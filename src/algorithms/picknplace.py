@@ -43,6 +43,7 @@ class Test1():
         self.open_gripper = False
         self.close_gripper = False
         self.executing = False
+        self.grab = ""
         self.ref_pos = ""
 
         # Wait for topics to start publishing
@@ -87,6 +88,8 @@ class Test1():
             except (AttributeError):
                 self.init.sleep()
                 continue
+
+        rospy.Subscriber("/FORCEFORCE", String, self.forceforceclbk)
 
         # Publish to robot
         # self.urScriptPub = rospy.Publisher("/ur_driver/URScript", String, queue_size=1)
@@ -134,6 +137,14 @@ class Test1():
         self.IO = data
         print 'wrote IO cb5'
 
+    def forceforceclbk(self, data):
+        if data.data == "grab":
+            self.grab = "grab"
+        elif data.data == "release":
+            self.grab = "release"
+        else:
+            pass
+
 
  
     #----------------------------------------------------------------
@@ -151,7 +162,7 @@ class Test1():
             #--------------------------------------------------------
             # Change the mode from handling the object to releasing the object:
             #--------------------------------------------------------
-            if self.lifting and not self.freedrive and self.F.z < -100:
+            if self.lifting and not self.freedrive and self.grab == "release":  # and self.F.z < -100:
                 #Release frame
                 self.tcp('stop')
                 self.loadNPlay('/programs/CollabForce_Release.urp')
@@ -182,7 +193,7 @@ class Test1():
                     else:
                         RecuSPToUni.lock_rsp = False
                         RecuSPToUni.unlock_rsp = False
-                        RecuSPToUni.open_gripper = False
+                        RecuSP:ToUni.open_gripper = False
                         RecuSPToUni.close_gripper = True
                         self.RecuSPToUniPublisher.publish(self.recu_sp_to_uni)
                     self.init.sleep()
@@ -205,7 +216,7 @@ class Test1():
             #--------------------------------------------------------
             # Change the mode from freedrive to the handling the object:
             #--------------------------------------------------------
-            elif not self.lifting and self.freedrive and self.F.z < -80:
+            elif not self.lifting and self.freedrive and self.grab == "grab": #and self.F.z < -80:
                 #Grip frame		
                 self.tcp('stop')
                 self.loadNPlay('/programs/CollabForce_Grip.urp')
