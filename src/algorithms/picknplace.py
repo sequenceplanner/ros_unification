@@ -35,6 +35,8 @@ class Test1():
     #----------------------------------------------------------------
     def __init__(self):
         
+        self.forcepublisher = rospy.Publisher("/FORCEFORCE", String, queue_size=1)
+
         self.init = rospy.Rate(30)
         self.io_service = rospy.ServiceProxy('/ur_driver/set_io', SetIO, self.cb5)
 
@@ -68,16 +70,16 @@ class Test1():
                 self.init.sleep()
                 continue
 
-        rospy.Subscriber("/ethdaq_data",WrenchStamped, self.cb3)
-        while(True):
-            try:
-                self.T
-                self.F
-                rospy.loginfo("/ethdaq_data found")
-                break
-            except (AttributeError):
-                self.init.sleep()
-                continue
+        #rospy.Subscriber("/ethdaq_data",WrenchStamped, self.cb3)
+        #while(True):
+        #    try:
+        #        self.T
+        #        self.F
+        #        rospy.loginfo("/ethdaq_data found")
+        #        break
+        #    except (AttributeError):
+        #        self.init.sleep()
+        #        continue
             
         rospy.Subscriber("/ur_driver/io_states", IOStates, self.cb4)
         while(True):
