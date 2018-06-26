@@ -35,9 +35,8 @@ class Test1():
     #----------------------------------------------------------------
     def __init__(self):
 
-	self.forcepublisher = rospy.Publisher("/FORCEFORCE", String, queue_size=1)
         
-        self.forcepublisher = rospy.Publisher("/FORCEFORCE", String, queue_size=1)
+        #self.forcepublisher = rospy.Publisher("/FORCEFORCE", String, queue_size=1)
 
         self.init = rospy.Rate(30)
         self.io_service = rospy.ServiceProxy('/ur_driver/set_io', SetIO, self.cb5)
@@ -141,13 +140,13 @@ class Test1():
         self.IO = data
         print 'wrote IO cb5'
 
-    def forceforceclbk(self, data):
-        if data.data == "grab":
-            self.grab = "grab"
-        elif data.data == "release":
-            self.grab = "release"
-        else:
-            pass
+    #def forceforceclbk(self, data):
+    #    if data.data == "grab":
+    #        self.grab = "grab"
+    #    elif data.data == "release":
+    #        self.grab = "release"
+    #    else:
+    #        pass
 
 
  
