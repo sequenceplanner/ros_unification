@@ -182,12 +182,12 @@ class ur_joint_pose_smaster():
             self.AtTightenedOF2JOINTPose,
             self.AboveTightenedOF2JOINTPose]:
 
-            if  abs((abs(joint.position[0]) - abs(pose[0]))) < 0.001 and\
-                abs((abs(joint.position[1]) - abs(pose[1]))) < 0.001 and\
-                abs((abs(joint.position[2]) - abs(pose[2]))) < 0.001 and\
-                abs((abs(joint.position[3]) - abs(pose[3]))) < 0.001 and\
-                abs((abs(joint.position[4]) - abs(pose[4]))) < 0.001 and\
-                abs((abs(joint.position[5]) - abs(pose[5]))) < 0.001:
+            if  abs((abs(joint.position[0]) - abs(pose[0]))) < 0.003 and\
+                abs((abs(joint.position[1]) - abs(pose[1]))) < 0.003 and\
+                abs((abs(joint.position[2]) - abs(pose[2]))) < 0.003 and\
+                abs((abs(joint.position[3]) - abs(pose[3]))) < 0.003 and\
+                abs((abs(joint.position[4]) - abs(pose[4]))) < 0.003 and\
+                abs((abs(joint.position[5]) - abs(pose[5]))) < 0.003:
                 self.ur_joint_pose_name = pose
                 
             else:

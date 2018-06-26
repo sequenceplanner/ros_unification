@@ -502,12 +502,12 @@ class ur_tcp_pose_smaster():
             #    self.ur_tcp_pose_state = "FindEngineMidCollideTCP"            
 
 
-            if  abs((abs(self.tcp_x) - abs(pose[0]))) < 0.001 and\
-                abs((abs(self.tcp_y) - abs(pose[1]))) < 0.001 and\
-                abs((abs(self.tcp_z) - abs(pose[2]))) < 0.001 and\
-                abs((abs(self.tcp_rx) - abs(pose[3]))) < 0.001 and\
-                abs((abs(self.tcp_ry) - abs(pose[4]))) < 0.001 and\
-                abs((abs(self.tcp_rz) - abs(pose[5]))) < 0.001:
+            if  abs((abs(self.tcp_x) - abs(pose[0]))) < 0.003 and\
+                abs((abs(self.tcp_y) - abs(pose[1]))) < 0.003 and\
+                abs((abs(self.tcp_z) - abs(pose[2]))) < 0.003 and\
+                abs((abs(self.tcp_rx) - abs(pose[3]))) < 0.003 and\
+                abs((abs(self.tcp_ry) - abs(pose[4]))) < 0.003 and\
+                abs((abs(self.tcp_rz) - abs(pose[5]))) < 0.003:
                 self.ur_tcp_pose_name = pose
 
             else:
