@@ -152,6 +152,11 @@ class unification_executor():
                 self.got_cmd = self.cmd
                 self.done = False
 
+            elif self.cmd == "reset":
+                self.seq_state = 0
+                self.got_cmd = self.cmd
+                self.done = False
+
             else:
                 pass
 
@@ -200,6 +205,11 @@ class unification_executor():
                 self.done = True
 
             elif self.cmd == "" and self.done == True:
+                self.seq_state = 0
+                self.got_cmd = self.cmd
+                self.done = False
+
+            elif self.cmd == "reset":
                 self.seq_state = 0
                 self.got_cmd = self.cmd
                 self.done = False
@@ -267,6 +277,11 @@ class unification_executor():
                 self.got_cmd = self.cmd
                 self.done = False
 
+            elif self.cmd == "reset":
+                self.seq_state = 0
+                self.got_cmd = self.cmd
+                self.done = False
+
             else:
                 pass
 
@@ -316,6 +331,11 @@ class unification_executor():
                 self.done = True
 
             elif self.cmd == "" and self.done == True:
+                self.seq_state = 0
+                self.got_cmd = self.cmd
+                self.done = False
+
+            elif self.cmd == "reset":
                 self.seq_state = 0
                 self.got_cmd = self.cmd
                 self.done = False
@@ -370,6 +390,11 @@ class unification_executor():
                 self.got_cmd = self.cmd
                 self.done = False
 
+            elif self.cmd == "reset":
+                self.seq_state = 0
+                self.got_cmd = self.cmd
+                self.done = False
+
             else:
                 pass
 
@@ -404,6 +429,11 @@ class unification_executor():
                 self.done = True
 
             elif self.cmd == "" and self.done == True:
+                self.seq_state = 0
+                self.got_cmd = self.cmd
+                self.done = False
+
+            elif self.cmd == "reset":
                 self.seq_state = 0
                 self.got_cmd = self.cmd
                 self.done = False
@@ -455,6 +485,11 @@ class unification_executor():
                 self.done = True
 
             elif self.cmd == "" and self.done == True:
+                self.seq_state = 0
+                self.got_cmd = self.cmd
+                self.done = False
+
+            elif self.cmd == "reset":
                 self.seq_state = 0
                 self.got_cmd = self.cmd
                 self.done = False
@@ -511,6 +546,16 @@ class unification_executor():
                 self.got_cmd = self.cmd
                 self.done = False
 
+            elif self.cmd == "reset":
+                self.seq_state = 0
+                self.got_cmd = self.cmd
+                self.done = False
+
+            elif self.cmd == "reset":
+                self.seq_state = 0
+                self.got_cmd = self.cmd
+                self.done = False
+
             else:
                 pass
 
@@ -534,6 +579,11 @@ class unification_executor():
                 self.done = True
 
             elif self.cmd == "" and self.done == True:
+                self.seq_state = 0
+                self.got_cmd = self.cmd
+                self.done = False
+
+            elif self.cmd == "reset":
                 self.seq_state = 0
                 self.got_cmd = self.cmd
                 self.done = False
